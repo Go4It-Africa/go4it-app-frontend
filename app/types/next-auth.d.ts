@@ -7,6 +7,9 @@ declare module 'next-auth/jwt' {
     accessToken?: string
     refreshToken?: string
     provider?: string
+    role?: 'club_admin' | 'super_admin' | 'tournament_organizer';
+    error?: string;
+    accessTokenExpires?: number;
   }
 }
 
@@ -22,13 +25,14 @@ declare module 'next-auth' {
         email: string
         first_name?: string
         last_name?: string
-        role?: string
+        role?: 'club_admin' | 'super_admin' | 'tournament_organizer';
     }
   }
   interface User {
     id: string
     accessToken?: string
     refreshToken?: string
+    role?: 'club_admin' | 'super_admin' | 'tournament_organizer';
   }
 }
 

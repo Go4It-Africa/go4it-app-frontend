@@ -2,23 +2,49 @@ import { NextResponse } from 'next/server';
 import type { NextRequest } from 'next/server';
 import { getToken } from 'next-auth/jwt';
 
+const AUTH_PAGES = ['/auth/login', '/auth/signup', '/auth/forgot-password'];
+const PUBLIC_PATHS = ['/landing'];
+
 export async function middleware(request: NextRequest) {
-  const token = await getToken({ req: request });
+  const token = await getToken({
+    req: request,
+    secret: process.env.NEXTAUTH_SECRET,
+  });
   
-  if (!token && !request.nextUrl.pathname.startsWith('/auth')) {
-    return NextResponse.redirect(new URL('/auth/login', request.url));
+  const { pathname } = request.nextUrl;
+
+  // Check if the path is public
+  if (PUBLIC_PATHS.some(path => pathname.startsWith(path))) {
+    return NextResponse.next();
   }
 
-  // Role-based route protection
-  if (token) {
-    const { role } = token;
-    const path = request.nextUrl.pathname;
+  // For auth pages
+  if (AUTH_PAGES.includes(pathname)) {
+    return token 
+      ? NextResponse.redirect(new URL('/dashboard', request.url))
+      : NextResponse.next();
+  }
 
-    if (path.startsWith('/admin') && role !== 'super_admin') {
-      return NextResponse.redirect(new URL('/dashboard', request.url));
-    }
+  // Require authentication for all other routes
+  if (!token) {
+    const searchParams = new URLSearchParams([['callbackUrl', pathname]]);
+    return NextResponse.redirect(
+      new URL(`/auth/login?${searchParams}`, request.url)
+    );
+  }
 
-    if (path.startsWith('/tournament/create') && role !== 'tournament_organizer') {
+  // Role-based access control
+  if (token.role) {
+    const roleAccess = {
+      club_admin: ['/dashboard', '/players', '/tournaments', '/club'],
+      super_admin: ['/dashboard', '/admin', '/settings'],
+      tournament_organizer: ['/dashboard', '/tournaments']
+    };
+
+    const allowedPaths = roleAccess[token.role as keyof typeof roleAccess] || [];
+    const hasAccess = allowedPaths.some(path => pathname.startsWith(path));
+
+    if (!hasAccess) {
       return NextResponse.redirect(new URL('/dashboard', request.url));
     }
   }
@@ -27,5 +53,5 @@ export async function middleware(request: NextRequest) {
 }
 
 export const config = {
-  matcher: ['/((?!api|_next/static|_next/image|favicon.ico).*)'],
+    matcher: ['/((?!api|_next/static|_next/image|favicon.ico|images).*)'],
 };
