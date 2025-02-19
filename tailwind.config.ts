@@ -10,7 +10,11 @@ export default {
     extend: {
       colors: {
         background: "var(--background)",
-        foreground: "var(--foreground)",
+        primary: "var(--primary-color)",
+        secondary: "var(--secondary-color)",
+      },
+      fontFamily: {
+        montserrat: ['Montserrat', 'sans-serif'],
       },
     },
   },
