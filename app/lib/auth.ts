@@ -1,15 +1,15 @@
 import { NextAuthOptions } from 'next-auth';
-import GoogleProvider from 'next-auth/providers/google';
+//import GoogleProvider from 'next-auth/providers/google';
 import CredentialsProvider from 'next-auth/providers/credentials';
-import { env } from '@/app/env.mjs';
+//import { env } from '@/app/env.mjs';
 import { serverInstance } from '@/app/lib/axios'
 
 export const authOptions: NextAuthOptions = {
   providers: [
-    GoogleProvider({
-      clientId: env.AUTH_GOOGLE_CLIENT_ID,
-      clientSecret: env.AUTH_GOOGLE_CLIENT_SECRET,
-    }),
+    // GoogleProvider({
+    //   clientId: env.AUTH_GOOGLE_CLIENT_ID,
+    //   clientSecret: env.AUTH_GOOGLE_CLIENT_SECRET,
+    // }),
     CredentialsProvider({
       name: 'Credentials',
       credentials: {
