@@ -6,6 +6,7 @@ export interface User {
   }
   
   export interface Club {
+    id?: number;
     name: string;
     user_id: number;
     logo?: string | null;
@@ -17,5 +18,15 @@ export interface User {
     instagram_url?: string;
     youtube_url?: string;
     tiktok_url?: string;
-    role: 'football' | 'athletics' | 'rugby';
+    sport: 'football' | 'athletics' | 'rugby';
+    playerCount?: number;
+  }
+
+  export interface Tournament {
+    id: string;
+    name: string;
+    status: 'upcoming' | 'ongoing' | 'completed';
+    startDate: string;
+    sport: 'football' | 'athletics' | 'rugby';
+    participantCount: number;
   }
