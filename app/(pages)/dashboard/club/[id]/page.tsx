@@ -12,11 +12,14 @@ import { Column, DataTable } from '@/app/components/ui/Table';
 import { Player } from '@/app/types';
 import { players } from '@/app/mock_data/player';
 import Loader from '@/app/components/Loader';
+import { useRouter } from 'next/navigation';
 // type ClubDashboardProps = { 
 //   params: { id: string };
 // }
 
 const PlayersTable = () => {
+  const router = useRouter();
+  
   const columns: Column<Player>[] = [
     {
       key: 'photo',
@@ -77,7 +80,9 @@ const PlayersTable = () => {
   const actions = [
     {
       label: 'View Details',
-      onClick: (player: Player) => console.log('View', player.id)
+      onClick: (player: Player) => {
+        router.push(`/dashboard/player/${player.id}`);
+      }
     },
     {
       label: 'Edit',

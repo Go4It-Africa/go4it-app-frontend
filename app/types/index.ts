@@ -41,6 +41,7 @@ export interface User {
     birth_certificate_file?: string;
     country_of_residence?: string;
     city_of_residence?: string;
+    nationality?: string;
     height?: number;
     weight?: number;
     position: string;
@@ -54,4 +55,11 @@ export interface User {
     season_name?: string;
     tournament_id?: number;
     tournament_name?: string;
+    guardian_name?: string;
+    guardian_phone?: string;
+    guardian_email?: string;
+    address?: string;
+    phone?: string;
+    email?: string;
+    joined_date?: string;
   }
