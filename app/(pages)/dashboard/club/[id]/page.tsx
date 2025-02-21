@@ -7,7 +7,7 @@ import Image from 'next/image';
 
 import { useClub } from "@/app/context/ClubContext";
 import { UserDropdown } from '@/app/components/UserDropdown';
-import { SeasonSelector } from '@/app/components/ClubSeasonSelector';
+import { SeasonSelector } from '@/app/components/clubs/ClubSeasonSelector';
 import { Column, DataTable } from '@/app/components/ui/Table';
 import { Player } from '@/app/types';
 import { players } from '@/app/mock_data/player';

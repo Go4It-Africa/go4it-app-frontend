@@ -6,10 +6,10 @@ export interface User {
   }
   
   export interface Club {
-    id?: number;
+    id: number;
     name: string;
     user_id: number;
-    logo?: string | null;
+    logo: string;
     country: string;
     city?: string;
     website_url?: string;

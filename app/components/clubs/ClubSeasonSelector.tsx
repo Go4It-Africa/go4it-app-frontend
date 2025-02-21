@@ -1,6 +1,6 @@
 'use client'
 
-import { Dropdown, DropdownItem, DropdownSection } from "./ui/Dropdown";
+import { Dropdown, DropdownItem, DropdownSection } from "@/app/components/ui/Dropdown";
 import { useState } from "react";
 
 // Season Selector using the reusable dropdown

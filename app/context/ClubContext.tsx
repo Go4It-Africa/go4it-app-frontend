@@ -1,15 +1,7 @@
 "use client";
 import { createContext, useContext, useState, ReactNode } from "react";
+import { Club } from "@/app/types";
 
-type Club = { 
-    name: string; 
-    id: number;
-    logo: string;
-    sport: string;
-    playerCount: number;
-    country: string;
-    user_id?: number;
- };
 type ClubContextType = { 
     club: Club | null; setClub: (club: Club) => void
  };

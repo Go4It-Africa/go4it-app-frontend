@@ -1,27 +1,65 @@
 'use client';
 
-import { clubs } from "@/app/mock_data/club";
+//import { clubs } from "@/app/mock_data/club";
 import { Layout } from "@/app/components/layout/WorkSpaceLayout";
 import Card from "@/app/components/ui/Card";
 import { Users, ArrowRight } from "lucide-react";
 import Image from 'next/image';
-import { useRouter } from "next/navigation";
 import Link from "next/link";
 import { useClub } from "@/app/context/ClubContext";
-
+import { useEffect, useState } from "react";
+import Loader from "@/app/components/Loader";
+import { CreateClubModal } from '@/app/components/clubs/ClubModal';
+import { Club } from "@/app/types";
 export default function ClubsWorkspacePage() {
-  const router = useRouter();
 
   const { setClub } = useClub();
 
+
+  const [clubs, setClubs] = useState<Club[]>([]);
+ const  [loading, setLoading] = useState<boolean>(false);
+ const [isCreateModalOpen, setIsCreateModalOpen] = useState<boolean>(false);
+
+ useEffect(() => {
+  const fetchData = async () => {
+   setLoading(true);
+   const response = await fetch('/api/clubs', {
+    method: 'GET',
+    headers: {
+     'Content-Type': 'application/json'
+    }
+   });
+
+   if( response.ok) {
+    const res = await response.json();
+    const { clubs } = res;
+    setClubs(clubs);
+    setLoading(false);
+   } else {
+    setLoading(false);
+   }
+  };
+  fetchData();
+ }, []);
+
+  if(loading) {
+    return <Loader />
+  }
+
   if(!clubs.length) {
     return (
+      <>
         <Layout
             title="Select Workspace" 
             description="Choose a club to manage or create a new one" 
             buttonText="Create New Club"
             page='clubs'
+            buttonAction={() => {
+              setIsCreateModalOpen(true)
+            }}
         />
+        <CreateClubModal isOpen={isCreateModalOpen} onClose={() => setIsCreateModalOpen(false)} />
+      </>
     )
 }
 
@@ -34,7 +72,7 @@ return (
         buttonText="Create New Club"
         noItems={false}
         buttonAction={() => {
-          router.push('/workspace/clubs/create')
+          setIsCreateModalOpen(true)
         }}
         
     >
@@ -48,7 +86,17 @@ return (
                 <Card key={id} className="hover:shadow-lg transition-shadow h-full">
                   <div className="p-6 h-full flex flex-col">
                     <div className="flex items-center gap-4 mb-4">
-                      <Image src={logo} alt={name} width={64} height={64} className="w-16 h-16 rounded-full object-cover" />
+                      <Image 
+                        src={logo || '/logos/logo.png'} 
+                        alt={`${name} logo`}
+                        width={64} 
+                        height={64} 
+                        className="h-16 w-16 rounded-full object-cover" 
+                        onError={(e) => {
+                          const target = e.target as HTMLImageElement;
+                          target.src = '/logos/logo.png';
+                        }}
+                      />
                       <div>
                         <h3 className="font-bold text-lg">{name}</h3>
                         <p className="text-gray-600 capitalize">{sport}</p>
@@ -75,6 +123,7 @@ return (
             )
         })
       }
+      <CreateClubModal isOpen={isCreateModalOpen} onClose={() => setIsCreateModalOpen(false)} />
     </div>
     </Layout>
 );
