@@ -33,14 +33,14 @@ const PlayersTable = () => {
       title: 'Photo',
       render: (value: string | unknown) => (
         <Image
-          src={(value as string) || '/api/placeholder/40/40'}
+          src={(value as string) || '/images/user.png'}
           alt='Player'
           width={40}
           height={40}
           className='h-10 w-10 rounded-full object-cover'
           onError={(e) => {
             const target = e.target as HTMLImageElement;
-            target.src = '/api/placeholder/40/40';
+            target.src = '/images/user.png';
           }}
         />
       ),
@@ -147,7 +147,7 @@ const ClubDashboard = () => {
                 className='w-12 h-12 rounded-full'
                 onError={(e) => {
                   const target = e.target as HTMLImageElement;
-                  target.src = '/api/placeholder/40/40';
+                  target.src = '/logos/logo.png';
                 }}
               />
               <div>
