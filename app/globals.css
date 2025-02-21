@@ -13,3 +13,31 @@
 body {
   font-family: 'Montserrat', sans-serif;
 }
+
+@layer components {
+  .form-input-base {
+    @apply block
+           w-full 
+           px-4 
+           py-2.5 
+           text-gray-900
+           border-2
+           border-gray-300
+           focus:outline-none 
+           focus:ring-2 
+           focus:ring-opacity-50 
+           transition 
+           duration-150 
+           ease-in-out
+           shadow-sm
+           sm:text-sm;
+  }
+
+  .form-input {
+    @apply form-input-base rounded-md;
+  }
+
+  .form-input-with-icon {
+    @apply form-input-base rounded-r-md border-l-0;
+  }
+}
