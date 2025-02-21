@@ -30,3 +30,28 @@ export interface User {
     sport: 'football' | 'athletics' | 'rugby';
     participantCount: number;
   }
+
+  export interface Player {
+    id: number;
+    first_name: string;
+    last_name: string;
+    date_of_birth: string;
+    photo: string;
+    birth_certificate_no?: string;
+    birth_certificate_file?: string;
+    country_of_residence?: string;
+    city_of_residence?: string;
+    height?: number;
+    weight?: number;
+    position: string;
+    category: string;
+    status?: 'active' | 'inactive';
+    created_at?: string;
+    updated_at?: string;
+    club_id?: number;
+    club_name?: string;
+    season_id?: number;
+    season_name?: string;
+    tournament_id?: number;
+    tournament_name?: string;
+  }
