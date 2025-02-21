@@ -1,6 +1,6 @@
 'use client'
 
-import React from 'react';
+import React, { useEffect, useState } from 'react';
 import Card from '@/app/components/ui/Card';
 import { Users, Trophy, Calendar, Clock, MoreHorizontal, FileText } from 'lucide-react';
 import Image from 'next/image';
@@ -11,6 +11,7 @@ import { SeasonSelector } from '@/app/components/ClubSeasonSelector';
 import { Column, DataTable } from '@/app/components/ui/Table';
 import { Player } from '@/app/types';
 import { players } from '@/app/mock_data/player';
+import Loader from '@/app/components/Loader';
 // type ClubDashboardProps = { 
 //   params: { id: string };
 // }
@@ -21,7 +22,17 @@ const PlayersTable = () => {
       key: 'photo',
       title: 'Photo',
       render: (value: string | unknown) => (
-        <Image src={value as string || '/api/placeholder/40/40'} alt="Player" width={40} height={40} className="h-10 w-10 rounded-full object-cover" />
+        <Image 
+          src={value as string || '/api/placeholder/40/40'} 
+          alt="Player" 
+          width={40} 
+          height={40} 
+          className="h-10 w-10 rounded-full object-cover" 
+          onError={(e) => {
+            const target = e.target as HTMLImageElement;
+            target.src = '/api/placeholder/40/40';
+          }}
+        />
       ),
       width: '60px'
     },
@@ -100,7 +111,15 @@ const ClubDashboard = () => {
 
   console.log('the club in dashboard', club)
 
-  if(!club) return null;
+  const [isLoading, setIsLoading] = useState(true);
+
+  useEffect(() => {
+    if (club) {
+      setIsLoading(false);
+    }
+  }, [club]);
+
+  if(!club || isLoading) return <Loader />;
 
   return (
     <div className="min-h-screen bg-gray-50">
@@ -109,7 +128,16 @@ const ClubDashboard = () => {
         <div className="max-w-7xl mx-auto px-6 py-4">
           <div className="flex items-center justify-between">
             <div className="flex items-center gap-4">
-              <Image src={club?.logo} alt={club?.name} width={48} height={48} className="w-12 h-12 rounded-full" />
+              <Image 
+                src={club?.logo} 
+                alt={club?.name} 
+                width={48} 
+                height={48} 
+                className="w-12 h-12 rounded-full" 
+                onError={(e) => {
+                  const target = e.target as HTMLImageElement;
+                  target.src = '/api/placeholder/40/40';
+                }} />
               <div>
                 <h1 className="text-xl font-bold">{club?.name}</h1>
                 <div className="flex items-center gap-2 text-sm text-gray-600">

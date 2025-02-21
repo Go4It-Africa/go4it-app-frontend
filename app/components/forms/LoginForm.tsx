@@ -22,7 +22,7 @@ export const LoginForm = () => {
         redirect: true,
         email: values.email,
         password: values.password,
-        callbackUrl: '/dashboard'
+        //callbackUrl: '/dashboard'
       });
 
       console.log('result in login form', result);
