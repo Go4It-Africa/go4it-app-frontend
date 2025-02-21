@@ -40,4 +40,8 @@ body {
   .form-input-with-icon {
     @apply form-input-base rounded-r-md border-l-0;
   }
+
+  .form-label-base {
+    @apply block text-sm font-medium text-gray-700 pb-1;
+  }
 }

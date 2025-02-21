@@ -6,10 +6,11 @@ import { Upload, Globe, Link } from 'lucide-react';
 import { Modal } from '@/app/components/ui/Modal';
 import { useClub } from '@/app/context/ClubContext';
 import Image from 'next/image';
+import countries from '@/app/mock_data/countries';
+
 const createClubSchema = z.object({
   name: z.string().min(1, 'Club name is required'),
   country: z.string().min(1, 'Country is required'),
-  city: z.string().optional(),
   sport: z.enum(['football', 'athletics', 'rugby']).default('football'),
   logo: z.string().optional().nullable(),
   website_url: z.string().url('Invalid URL').optional().nullable(),
@@ -62,36 +63,44 @@ export const CreateClubModal = ({ isOpen, onClose }: CreateClubModalProps) => {
   });
 
   return (
-    <Modal isOpen={isOpen} onClose={onClose} title="Create New Club">
-      <form onSubmit={formik.handleSubmit} className="space-y-6">
+    <Modal isOpen={isOpen} onClose={onClose} title='Create New Club'>
+      <form onSubmit={formik.handleSubmit} className='space-y-6'>
         {/* Basic Information */}
-        <div className="space-y-4">
-          <h4 className="text-sm font-medium text-gray-900">Basic Information</h4>
-          
+        <div className='space-y-4'>
+          <h4 className='text-sm font-medium text-gray-900'>
+            Basic Information
+          </h4>
+
           {/* Logo Upload */}
-          <div className="flex items-center justify-center">
-            <div className="relative">
+          <div className='flex items-center justify-center'>
+            <div className='relative'>
+              <label
+                htmlFor='name'
+                className='block text-sm font-medium text-gray-700 text-center pb-2'
+              >
+                Upload Logo
+              </label>
               {formik.values.logo ? (
-                <Image 
-                    src={formik.values.logo} 
-                    alt="Club logo" 
-                    width={128} 
-                    height={128} 
-                    className="w-32 h-32 rounded-full object-cover" 
-                    onError={(e) => {
-                      const target = e.target as HTMLImageElement;
-                      target.src = '/logos/logo.png';
-                    }}
+                <Image
+                  src={formik.values.logo}
+                  alt='Club logo'
+                  width={128}
+                  height={128}
+                  className='w-32 h-32 rounded-full object-cover'
+                  onError={(e) => {
+                    const target = e.target as HTMLImageElement;
+                    target.src = '/logos/logo.png';
+                  }}
                 />
               ) : (
-                <div className="w-32 h-32 rounded-full border-2 border-dashed border-gray-300 flex items-center justify-center bg-gray-50">
-                  <Upload className="w-8 h-8 text-gray-400" />
+                <div className='w-32 h-32 rounded-full border-2 border-dashed border-gray-300 flex items-center justify-center bg-gray-50'>
+                  <Upload className='w-8 h-8 text-gray-400' />
                 </div>
               )}
               <input
-                type="file"
-                accept="image/*"
-                className="absolute inset-0 w-full h-full opacity-0 cursor-pointer"
+                type='file'
+                accept='image/*'
+                className='absolute inset-0 w-full h-full opacity-0 cursor-pointer'
                 onChange={(event) => {
                   const file = event.currentTarget.files?.[0];
                   if (file) {
@@ -106,132 +115,144 @@ export const CreateClubModal = ({ isOpen, onClose }: CreateClubModalProps) => {
 
           {/* Club Name */}
           <div>
-            <label htmlFor="name" className="block text-sm font-medium text-gray-700">
+            <label htmlFor='name' className='form-label-base'>
               Club Name
             </label>
             <input
-              type="text"
-              id="name"
+              type='text'
+              id='name'
               {...formik.getFieldProps('name')}
-              className="mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-primary focus:ring-primary sm:text-sm"
+              className={`form-input ${
+                formik.touched.name && formik.errors.name
+                  ? 'border-red-500 focus:border-red-500 focus:ring-red-500'
+                  : 'border-gray-300 focus:border-colors-primary focus:ring-colors-primary'
+              }
+            `}
             />
             {formik.touched.name && formik.errors.name && (
-              <div className="mt-1 text-sm text-red-600">{formik.errors.name}</div>
+              <div className='mt-1 text-sm text-red-600'>
+                {formik.errors.name}
+              </div>
             )}
           </div>
 
           {/* Sport Type */}
           <div>
-            <label htmlFor="sport" className="block text-sm font-medium text-gray-700">
+            <label htmlFor='sport' className='form-label-base'>
               Sport
             </label>
             <select
-              id="sport"
+              id='sport'
               {...formik.getFieldProps('sport')}
-              className="mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-primary focus:ring-primary sm:text-sm"
+              className={`form-input ${
+                formik.touched.sport && formik.errors.sport
+                  ? 'border-red-500 focus:border-red-500 focus:ring-red-500'
+                  : 'border-gray-300 focus:border-colors-primary focus:ring-colors-primary'
+              }
+            `}
             >
-              <option value="football">Football</option>
-              <option value="athletics">Athletics</option>
-              <option value="rugby">Rugby</option>
+              <option value='football'>Football</option>
+              <option value='athletics'>Athletics</option>
+              <option value='rugby'>Rugby</option>
             </select>
           </div>
         </div>
 
         {/* Location */}
-        <div className="space-y-4">
-          <h4 className="text-sm font-medium text-gray-900">Location</h4>
-          
-          <div className="grid grid-cols-2 gap-4">
-            <div>
-              <label htmlFor="country" className="block text-sm font-medium text-gray-700">
-                Country
-              </label>
-              <input
-                type="text"
-                id="country"
-                {...formik.getFieldProps('country')}
-                className="mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-primary focus:ring-primary sm:text-sm"
-              />
-              {formik.touched.country && formik.errors.country && (
-                <div className="mt-1 text-sm text-red-600">{formik.errors.country}</div>
-              )}
-            </div>
-
-            <div>
-              <label htmlFor="city" className="block text-sm font-medium text-gray-700">
-                City
-              </label>
-              <input
-                type="text"
-                id="city"
-                {...formik.getFieldProps('city')}
-                className="mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-primary focus:ring-primary sm:text-sm"
-              />
-            </div>
+        <div className='space-y-4'>
+          <h4 className='text-sm font-medium text-gray-900'>Location</h4>
+          <div>
+            <label htmlFor='country' className='form-label-base'>
+              Country
+            </label>
+            <select
+              id='country'
+              {...formik.getFieldProps('country')}
+              className={`form-input ${
+                formik.touched.country && formik.errors.country
+                  ? 'border-red-500 focus:border-red-500 focus:ring-red-500'
+                  : 'border-gray-300 focus:border-colors-primary focus:ring-colors-primary'
+              }
+            `}
+            >
+              <option value=''>Select a country</option>
+              {countries.map((country) => (
+                <option key={country.code} value={country.code}>
+                  {country.label}
+                </option>
+              ))}
+            </select>
+            {formik.touched.country && formik.errors.country && (
+              <div className='mt-1 text-sm text-red-600'>
+                {formik.errors.country}
+              </div>
+            )}
           </div>
         </div>
 
         {/* Social Links */}
-        <div className="space-y-4">
-          <h4 className="text-sm font-medium text-gray-900">Online Presence</h4>
-          
+        <div className='space-y-4'>
+          <h4 className='text-sm font-medium text-gray-900'>Online Presence</h4>
+
           <div>
-            <label htmlFor="website_url" className="block text-sm font-medium text-gray-700">
+            <label htmlFor='website_url' className='form-label-base'>
               Website
             </label>
-            <div className="mt-1 flex rounded-md shadow-sm">
-              <span className="inline-flex items-center px-3 rounded-l-md border border-r-0 border-gray-300 bg-gray-50 text-gray-500 sm:text-sm">
+            <div className='mt-1 flex rounded-md shadow-sm'>
+              <span className='inline-flex items-center px-3 shadow-sm rounded-l-md border-2 border-r-0 border-gray-300 bg-gray-50 text-gray-500 sm:text-sm'>
                 <Globe size={16} />
               </span>
               <input
-                type="url"
-                id="website_url"
+                type='url'
+                id='website_url'
                 {...formik.getFieldProps('website_url')}
-                placeholder="https://example.com"
-                className="flex-1 min-w-0 block w-full rounded-none rounded-r-md border-gray-300 focus:border-primary focus:ring-primary sm:text-sm"
+                placeholder='https://example.com'
+                className='form-input-with-icon'
               />
             </div>
           </div>
 
           {/* Social Media URLs */}
-          <div className="grid grid-cols-1 gap-4">
-            {['twitter', 'facebook', 'instagram', 'youtube', 'tiktok'].map((platform) => (
-              <div key={platform}>
-                <label
-                  htmlFor={`${platform}_url`}
-                  className="block text-sm font-medium text-gray-700 capitalize"
-                >
-                  {platform}
-                </label>
-                <div className="mt-1 flex rounded-md shadow-sm">
-                  <span className="inline-flex items-center px-3 rounded-l-md border border-r-0 border-gray-300 bg-gray-50 text-gray-500 sm:text-sm">
-                    <Link size={16} />
-                  </span>
-                  <input
-                    type="url"
-                    id={`${platform}_url`}
-                    {...formik.getFieldProps(`${platform}_url`)}
-                    placeholder={`https://${platform}.com/your-club`}
-                    className="flex-1 min-w-0 block w-full rounded-none rounded-r-md border-gray-300 focus:border-primary focus:ring-primary sm:text-sm"
-                  />
+          <div className='grid grid-cols-1 gap-4'>
+            {['twitter', 'facebook', 'instagram', 'youtube', 'tiktok'].map(
+              (platform) => (
+                <div key={platform}>
+                  <label
+                    htmlFor={`${platform}_url`}
+                    className='form-label-base capitalize'
+                  >
+                    {platform}
+                  </label>
+                  <div className='mt-1 flex rounded-md shadow-sm'>
+                    <span className='inline-flex items-center px-3 shadow-sm rounded-l-md border-2 border-r-0 border-gray-300 bg-gray-50 text-gray-500 sm:text-sm'>
+                      <Link size={16} />
+                    </span>
+                    <input
+                      type='url'
+                      id={`${platform}_url`}
+                      {...formik.getFieldProps(`${platform}_url`)}
+                      placeholder={`https://${platform}.com/your-club`}
+                      className='form-input-with-icon'
+                    />
+                  </div>
                 </div>
-              </div>
-            ))}
+              )
+            )}
           </div>
         </div>
 
         {/* Form Actions */}
-        <div className="flex justify-end gap-3">
+        <div className='flex justify-end gap-3'>
           <button
-            type="button"
+            type='button'
             onClick={onClose}
-            className="px-4 py-2 border border-gray-300 rounded-md text-sm font-medium text-gray-700 hover:bg-gray-50"
+            className='px-4 py-2 border border-gray-300 rounded-md text-sm font-medium text-gray-700 hover:bg-gray-50'
           >
             Cancel
           </button>
           <button
-            type="submit"
-            className="px-4 py-2 bg-primary text-white rounded-md text-sm font-medium hover:bg-primary/90"
+            type='submit'
+            className='px-4 py-2 bg-primary text-white rounded-md text-sm font-medium hover:bg-primary/90'
           >
             Create Club
           </button>
