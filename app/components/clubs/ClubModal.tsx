@@ -58,6 +58,7 @@ export const CreateClubModal = ({ isOpen, onClose }: CreateClubModalProps) => {
         onClose();
       } catch (error) {
         console.error('Error creating club:', error);
+        //todo: add error message to formik
       }
     },
   });

@@ -1,130 +1,148 @@
 'use client';
 
 //import { clubs } from "@/app/mock_data/club";
-import { Layout } from "@/app/components/layout/WorkSpaceLayout";
-import Card from "@/app/components/ui/Card";
-import { Users, ArrowRight } from "lucide-react";
+import { Layout } from '@/app/components/layout/WorkSpaceLayout';
+import Card from '@/app/components/ui/Card';
+import { Users, ArrowRight } from 'lucide-react';
 import Image from 'next/image';
-import Link from "next/link";
-import { useClub } from "@/app/context/ClubContext";
-import { useEffect, useState } from "react";
-import Loader from "@/app/components/Loader";
+import Link from 'next/link';
+import { useClub } from '@/app/context/ClubContext';
+import { useEffect, useMemo, useState } from 'react';
+import Loader from '@/app/components/Loader';
 import { CreateClubModal } from '@/app/components/clubs/ClubModal';
-import { Club } from "@/app/types";
-export default function ClubsWorkspacePage() {
+import { Club } from '@/app/types';
 
+export default function ClubsWorkspacePage() {
   const { setClub } = useClub();
 
-
   const [clubs, setClubs] = useState<Club[]>([]);
- const  [loading, setLoading] = useState<boolean>(false);
- const [isCreateModalOpen, setIsCreateModalOpen] = useState<boolean>(false);
+  const [loading, setLoading] = useState<boolean>(false);
+  const [isCreateModalOpen, setIsCreateModalOpen] = useState<boolean>(false);
 
- useEffect(() => {
-  const fetchData = async () => {
-   setLoading(true);
-   const response = await fetch('/api/clubs', {
-    method: 'GET',
-    headers: {
-     'Content-Type': 'application/json'
-    }
-   });
+  useEffect(() => {
+    const fetchData = async () => {
+      setLoading(true);
+      const response = await fetch('/api/clubs', {
+        method: 'GET',
+        headers: {
+          'Content-Type': 'application/json',
+        },
+      });
 
-   if( response.ok) {
-    const res = await response.json();
-    const { clubs } = res;
-    setClubs(clubs);
-    setLoading(false);
-   } else {
-    setLoading(false);
-   }
-  };
-  fetchData();
- }, []);
+      if (response.ok) {
+        const res = await response.json();
+        const { clubs } = res;
+        setClubs(clubs);
+        setLoading(false);
+      } else {
+        setLoading(false);
+      }
+    };
+    fetchData();
+  }, []);
 
-  if(loading) {
-    return <Loader />
+  const processedClubs = useMemo(() => {
+    return clubs.map((club) => ({
+      ...club,
+      logo:
+        club.logo instanceof Blob ? URL.createObjectURL(club.logo) : club.logo,
+    }));
+  }, [clubs]);
+
+  if (loading) {
+    return <Loader />;
   }
 
-  if(!clubs.length) {
+  if (!clubs.length) {
     return (
       <>
         <Layout
-            title="Select Workspace" 
-            description="Choose a club to manage or create a new one" 
-            buttonText="Create New Club"
-            page='clubs'
-            buttonAction={() => {
-              setIsCreateModalOpen(true)
-            }}
+          title='Select Workspace'
+          description='Choose a club to manage or create a new one'
+          buttonText='Create New Club'
+          page='clubs'
+          buttonAction={() => {
+            setIsCreateModalOpen(true);
+          }}
         />
-        <CreateClubModal isOpen={isCreateModalOpen} onClose={() => setIsCreateModalOpen(false)} />
+        <CreateClubModal
+          isOpen={isCreateModalOpen}
+          onClose={() => setIsCreateModalOpen(false)}
+        />
       </>
-    )
-}
+    );
+  }
 
-console.log('the clubs', clubs)
+  console.log('the clubs', clubs);
 
-return (
-    <Layout 
-        title="Select Workspace" 
-        description="Choose a club to manage or create a new one" 
-        buttonText="Create New Club"
-        noItems={false}
-        buttonAction={() => {
-          setIsCreateModalOpen(true)
-        }}
-        
+  return (
+    <Layout
+      title='Select Workspace'
+      description='Choose a club to manage or create a new one'
+      buttonText='Create New Club'
+      noItems={false}
+      buttonAction={() => {
+        setIsCreateModalOpen(true);
+      }}
     >
-      <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-4">
-      {
-        clubs.map((club) => {
-            if(!club) return null
-            const {id, name, logo, sport, playerCount, country} = club
-            return (
-              <div key={id} className="h-full">
-                <Card key={id} className="hover:shadow-lg transition-shadow h-full">
-                  <div className="p-6 h-full flex flex-col">
-                    <div className="flex items-center gap-4 mb-4">
-                      <Image 
-                        src={logo || '/logos/logo.png'} 
-                        alt={`${name} logo`}
-                        width={64} 
-                        height={64} 
-                        className="h-16 w-16 rounded-full object-cover" 
-                        onError={(e) => {
-                          const target = e.target as HTMLImageElement;
-                          target.src = '/logos/logo.png';
-                        }}
-                      />
-                      <div>
-                        <h3 className="font-bold text-lg">{name}</h3>
-                        <p className="text-gray-600 capitalize">{sport}</p>
-                      </div>
+      <div className='grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-4'>
+        {processedClubs.map((club) => {
+          if (!club) return null;
+          const { id, name, logo, sport, playerCount, country } = club;
+          return (
+            <div key={id} className='h-full'>
+              <Card
+                key={id}
+                className='hover:shadow-lg transition-shadow h-full'
+              >
+                <div className='p-6 h-full flex flex-col'>
+                  <div className='flex items-center gap-4 mb-4'>
+                    <Image
+                      src={logo || '/logos/logo.png'}
+                      alt={`${name} logo`}
+                      width={64}
+                      height={64}
+                      className='h-16 w-16 rounded-full object-cover'
+                      onError={(e) => {
+                        const target = e.target as HTMLImageElement;
+                        target.src = '/logos/logo.png';
+                      }}
+                    />
+                    <div>
+                      <h3 className='font-bold text-lg'>{name}</h3>
+                      <p className='text-gray-600 capitalize'>{sport}</p>
                     </div>
-                    
-                    <div className="flex items-center gap-4 mb-4">
-                      <div className="flex items-center gap-2">
-                        <Users size={16} className="text-gray-400" />
-                        <span className="text-sm text-gray-600">{playerCount} Players</span>
-                      </div>
-                      <div className="text-sm text-gray-600">{country}</div>
-                    </div>
-              
-                    <Link href={`/dashboard/club/${id}`} onClick={() => setClub(club)}>
-                      <button className="mt-auto w-full bg-primary/10 text-primary font-medium py-2 rounded-lg flex items-center justify-center gap-2 hover:bg-primary/20 transition-colors">
-                        Open Dashboard
-                        <ArrowRight size={16} />
-                      </button>
-                    </Link>
                   </div>
-                </Card>
-              </div>
-            )
-        })
-      }
-      <CreateClubModal isOpen={isCreateModalOpen} onClose={() => setIsCreateModalOpen(false)} />
-    </div>
+
+                  <div className='flex items-center gap-4 mb-4'>
+                    <div className='flex items-center gap-2'>
+                      <Users size={16} className='text-gray-400' />
+                      <span className='text-sm text-gray-600'>
+                        {playerCount} Players
+                      </span>
+                    </div>
+                    <div className='text-sm text-gray-600'>{country}</div>
+                  </div>
+
+                  <Link
+                    href={`/dashboard/club/${id}`}
+                    onClick={() => setClub(club)}
+                  >
+                    <button className='mt-auto w-full bg-primary/10 text-primary font-medium py-2 rounded-lg flex items-center justify-center gap-2 hover:bg-primary/20 transition-colors'>
+                      Open Dashboard
+                      <ArrowRight size={16} />
+                    </button>
+                  </Link>
+                </div>
+              </Card>
+            </div>
+          );
+        })}
+        <CreateClubModal
+          isOpen={isCreateModalOpen}
+          onClose={() => setIsCreateModalOpen(false)}
+        />
+      </div>
     </Layout>
-);
+  );
 }
