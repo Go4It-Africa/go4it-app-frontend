@@ -16,10 +16,12 @@ type LayoutProps = {
     buttonText?: string;
     buttonAction?: () => void;
     noItems?: boolean;
-    item?: string;
+    page?: string;
 }
 
-export const Layout = ({children, title, description, buttonText, buttonAction, noItems = true, item}: LayoutProps) => {
+export const Layout = ({children, title, description, buttonText, buttonAction, page, noItems = true}: LayoutProps) => {
+    console.log('clubs', page)
+
     return (
         <div className="min-h-screen bg-gray-50 p-6">
             <div className="max-w-6xl mx-auto">
@@ -35,7 +37,7 @@ export const Layout = ({children, title, description, buttonText, buttonAction, 
                     </div>
 
                     {noItems && (
-                        <NoItems title={item} />
+                        <NoItems title={page} />
                     )}
 
                     {/* Search and Filters */}
