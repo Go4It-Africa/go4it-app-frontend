@@ -2,13 +2,96 @@
 
 import React from 'react';
 import Card from '@/app/components/ui/Card';
-import { Users, Trophy, Calendar, Clock, ChevronDown, MoreHorizontal, FileText } from 'lucide-react';
+import { Users, Trophy, Calendar, Clock, MoreHorizontal, FileText } from 'lucide-react';
 import Image from 'next/image';
 
 import { useClub } from "@/app/context/ClubContext";
+import { UserDropdown } from '@/app/components/UserDropdown';
+import { SeasonSelector } from '@/app/components/ClubSeasonSelector';
+import { Column, DataTable } from '@/app/components/ui/Table';
+import { Player } from '@/app/types';
+import { players } from '@/app/mock_data/player';
 // type ClubDashboardProps = { 
 //   params: { id: string };
 // }
+
+const PlayersTable = () => {
+  const columns: Column<Player>[] = [
+    {
+      key: 'photo',
+      title: 'Photo',
+      render: (value: string | unknown) => (
+        <Image src={value as string || '/api/placeholder/40/40'} alt="Player" width={40} height={40} className="h-10 w-10 rounded-full object-cover" />
+      ),
+      width: '60px'
+    },
+    {
+      key: 'first_name',
+      title: 'First Name',
+      sortable: true
+    },
+    {
+      key: 'last_name',
+      title: 'Last Name',
+      sortable: true
+    },
+    {
+      key: 'date_of_birth',
+      title: 'Date of Birth',
+      sortable: true,
+      render: (value: string | unknown) => new Date(value as string || '').toLocaleDateString()
+    },
+    {
+      key: 'birth_certificate_no',
+      title: 'Birth Certificate No',
+      sortable: false
+    },
+    {
+      key: 'birth_certificate_file',
+      title: 'Birth Certificate File',
+      sortable: false
+    },
+    {
+      key: 'category',
+      title: 'Category',
+      sortable: true
+    },
+    {
+      key: 'status',
+      title: 'Status',
+      sortable: true
+    },
+  ];
+
+  const actions = [
+    {
+      label: 'View Details',
+      onClick: (player: Player) => console.log('View', player.id)
+    },
+    {
+      label: 'Edit',
+      onClick: (player: Player) => console.log('Edit', player.id)
+    },
+    {
+      label: 'Delete',
+      onClick: (player: Player) => console.log('Delete', player.id),
+      danger: true
+    }
+  ];
+
+  return (
+    <DataTable
+      data={players} // Your player data here
+      columns={columns}
+      actions={actions}
+      title="Players"
+      loading={false}
+      searchPlaceholder="Search players..."
+      onSearch={(term) => console.log('Search:', term)}
+      className="mt-8"
+    />
+  );
+};
 
 
 const ClubDashboard = () => {
@@ -37,10 +120,11 @@ const ClubDashboard = () => {
               </div>
             </div>
             
-            <button className="flex items-center gap-2 text-gray-600 hover:text-gray-900">
-              <span>2023/2024 Season</span>
-              <ChevronDown size={20} />
-            </button>
+            <SeasonSelector />
+
+            {/* { add a user profile icon with a dropdown menu to logout and user settings} */}
+            <UserDropdown />
+
           </div>
         </div>
       </div>
@@ -162,6 +246,8 @@ const ClubDashboard = () => {
             </div>
           </Card>
         </div>
+
+        <PlayersTable />
       </div>
     </div>
   );
