@@ -1,8 +1,7 @@
 'use client';
 
 import { useSession } from 'next-auth/react';
-import { useRouter } from 'next/navigation'
-import { useEffect } from 'react';
+import { useEffect, useState } from 'react';
 import type { ReactNode } from 'react';
 import Loader from '../components/Loader';
 
@@ -12,26 +11,35 @@ interface AuthGuardProps {
 
 export const AuthGuard = ({ children }: AuthGuardProps) => {
   const { data: session, status } = useSession();
-  const router = useRouter();
-  const isLoading = status === 'loading';
+  const [mounted, setMounted] = useState(false);
 
   useEffect(() => {
-    if (!isLoading && !session) {
-      router.push('/auth/login');
+    setMounted(true);
+  }, []);
+  
+  useEffect(() => {
+    if (mounted && status === 'unauthenticated') {
+      const callbackUrl = encodeURIComponent(window.location.pathname);
+      window.location.href = `/auth/login?callbackUrl=${callbackUrl}`;
     }
-  }, [session, isLoading, router]);
+  }, [mounted, status]);
 
-  if (isLoading) {
-    return (
-      <div className="min-h-screen flex items-center justify-center">
-        <Loader />
-      </div>
-    );
+  useEffect(() => {
+    if (mounted && status === 'unauthenticated') {
+      // Use window.location for initial redirect instead of router
+      window.location.href = '/auth/login';
+    }
+  }, [mounted, status]);
+  
+  // Don't render anything until mounted
+  if (!mounted || status === 'loading') {
+    return <Loader />;
   }
-
+  
+  // Only render children if we have a session
   if (!session) {
-    return null;
+    return <Loader />;
   }
-
+  
   return <>{children}</>;
 };

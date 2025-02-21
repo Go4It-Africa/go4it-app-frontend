@@ -23,15 +23,21 @@ declare module 'next-auth' {
     user: {
         id: string
         email: string
+        name?: string
         first_name?: string
         last_name?: string
         role?: 'club_admin' | 'super_admin' | 'tournament_organizer';
     }
+    error?: string;
   }
   interface User {
     id: string
     accessToken?: string
     refreshToken?: string
+    name?: string
+    first_name?: string
+    last_name?: string
+    email?: string
     role?: 'club_admin' | 'super_admin' | 'tournament_organizer';
   }
 }

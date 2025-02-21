@@ -6,38 +6,53 @@ import { serverInstance } from '@/app/lib/axios'
 
 import { JWT } from 'next-auth/jwt';
 
+import { env } from '@/app/env.mjs';
+
 
 async function refreshToken(token: JWT): Promise<JWT> {
     try {
-      const response = await fetch(`${process.env.NEXT_PUBLIC_API_URL}/auth/refresh`, {
+      const response = await fetch(`${env.API_URL}/auth/refresh`, {
         method: 'POST',
         headers: {
           'Authorization': `Bearer ${token.refreshToken}`,
         },
       });
   
-      const refreshedTokens = await response.json();
-  
       if (!response.ok) {
-        throw refreshedTokens;
+        return {
+          ...token,
+          error: 'RefreshAccessTokenError',
+          accessToken: undefined,
+          accessTokenExpires: undefined,
+        };
       }
-  
+      const refreshedTokens = await response.json();
+
       return {
         ...token,
         accessToken: refreshedTokens.accessToken,
         accessTokenExpires: Date.now() + refreshedTokens.expiresIn * 1000,
         refreshToken: refreshedTokens.refreshToken ?? token.refreshToken,
       };
+      // return {
+      //   ...token,
+      //   accessToken: refreshedTokens.accessToken,
+      //   accessTokenExpires: Date.now() + refreshedTokens.expiresIn * 1000,
+      //   refreshToken: refreshedTokens.refreshToken ?? token.refreshToken,
+      // };
     } catch (error) {
         console.log('error', error);
       return {
         ...token,
         error: 'RefreshAccessTokenError',
+        accessToken: undefined,
+        accessTokenExpires: undefined,
       };
     }
   }
 
 export const authOptions: NextAuthOptions = {
+  secret: env.NEXTAUTH_SECRET,
   providers: [
     // GoogleProvider({
     //   clientId: env.AUTH_GOOGLE_CLIENT_ID,
@@ -55,7 +70,7 @@ export const authOptions: NextAuthOptions = {
         }
     
         try {
-            const response = await serverInstance.post(`${process.env.API_URL}/auth/login`, {
+            const response = await serverInstance.post(`${env.API_URL}/auth/login`, {
                 email: credentials.email,
                 password: credentials.password
             })
@@ -64,15 +79,19 @@ export const authOptions: NextAuthOptions = {
                 return {
                     id: response.data.user.id,
                     email: response.data.user.email,
+                    name: `${response.data.user.first_name} ${response.data.user.last_name}`,
+                    role: response.data.user.role,
+                    first_name: response.data.user.first_name,
+                    last_name: response.data.user.last_name,
                     accessToken: response.data.accessToken,
                     refreshToken: response.data.refreshToken,
-                    user: {
-                        id: response.data.user.id,
-                        email: response.data.user.email,
-                        first_name: response.data.user.first_name,
-                        last_name: response.data.user.last_name,
-                        role: response.data.user.role,
-                    },
+                    // user: {
+                    //     id: response.data.user.id,
+                    //     email: response.data.user.email,
+                    //     first_name: response.data.user.first_name,
+                    //     last_name: response.data.user.last_name,
+                    //     role: response.data.user.role,
+                    // },
                     message: response.data.message,
                 }
             }
@@ -94,39 +113,55 @@ export const authOptions: NextAuthOptions = {
                 refreshToken: user.refreshToken,
                 userId: user.id,
                 email: user.email,
+                name: user.name,
+                first_name: user.first_name,
+                last_name: user.last_name,
                 provider: account.provider,
                 role: user.role,
                 accessTokenExpires: Date.now() + 60 * 60 * 1000,
+                user: {
+                  id: user.id,
+                  email: user.email,
+                  role: user.role,
+                  first_name: user.first_name,
+                  last_name: user.last_name,
+                }
             }
         }
         // Return previous token if the access token has not expired
-        if (Date.now() < (token.accessTokenExpires as number)) {
+        if (token && token.accessToken) {
+          if (Date.now() < (token.accessTokenExpires as number)) {
             return token;
+          }
+          // Token expired, refresh it
+          return await refreshToken(token);
         }
 
-        // Access token has expired, refresh it
-        return refreshToken(token);
+        return { ...token, error: 'TokenValidationError' };
     },
     async session({ session, token }) {
-        if (token.error) {
-            // Handle token error - typically by signing out the user
-            throw new Error('Invalid token');
-        }
+      if (token && !token.error) {
+        session.user = {
+          id: token.userId,
+          email: token.email ?? '',
+          name: token.name ?? '',
+          role: token.role,
+          first_name: token.first_name as string ?? '',
+          last_name: token.last_name as string ?? '',
+        };
+        session.accessToken = token.accessToken;
+        session.provider = token.provider;
+      } else {
+        // If there's a token error, reflect it in the session
+        session.error = token.error;
+      }
 
-        if (token) {
-            session.user = {
-                id: token.userId,
-                email: token.email || '',
-                role: token.role,
-                // first_name: token.first_name || '',
-                // last_name: token.last_name || '',
-            };
-            session.accessToken = token.accessToken;
-            session.provider = token.provider;
-        }
+      console.log('Session after modification:', {
+        ...session,
+        accessToken: '***'
+      });
 
-        
-        return session;
+      return session;
     }
 },
 cookies: {
@@ -149,5 +184,32 @@ cookies: {
     strategy: 'jwt',
     maxAge: 30 * 24 * 60 * 60, // 30 days
   },
+  events: {
+    signOut: async ({ session, token }) => {
+      // Perform any cleanup like invalidating tokens on your backend
+      console.log('signOut', session, token);
+      try {
+        await fetch(`${env.API_URL}/auth/logout`, {
+          method: 'POST',
+          headers: {
+            Authorization: `Bearer ${token.accessToken}`,
+          },
+        });
+      } catch (error) {
+        console.error('Logout error:', error);
+      }
+    },
+  },
   debug: process.env.NODE_ENV === 'development',
+  logger: {
+    error(code, metadata) {
+      console.error('NextAuth Error:', { code, metadata });
+    },
+    warn(code) {
+      console.warn('NextAuth Warning:', code);
+    },
+    debug(code, metadata) {
+      console.log('NextAuth Debug:', { code, metadata });
+    },
+  },
 };

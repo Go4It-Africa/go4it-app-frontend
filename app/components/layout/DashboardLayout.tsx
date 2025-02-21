@@ -1,10 +1,10 @@
 'use client';
 
-import { ReactNode, useState } from 'react';
+import { ReactNode, useState, useEffect } from 'react';
 import Link from 'next/link';
 import { useSession, signOut } from 'next-auth/react';
 import { Menu, X, Home, Users, Calendar, Trophy, Settings } from 'lucide-react';
-
+import Loader from '../Loader';
 interface NavItem {
   label: string;
   href: string;
@@ -26,9 +26,17 @@ interface DashboardLayoutProps {
 
 export const DashboardLayout = ({ children }: DashboardLayoutProps) => {
   const [sidebarOpen, setSidebarOpen] = useState(false);
-
+  const [mounted, setMounted] = useState(false);
   const { data: session } = useSession();
   const userRole = session?.user?.role;
+
+  useEffect(() => {
+    setMounted(true);
+  }, []);
+
+  if (!mounted) {
+    return <Loader />;
+  }
 
   const filteredNavItems = navItems.filter(item => 
     item.roles.includes(userRole as string)
@@ -76,7 +84,13 @@ export const DashboardLayout = ({ children }: DashboardLayoutProps) => {
                 </p>
               </div>
               <button
-                onClick={() => signOut()}
+                onClick={async () => {
+                  await signOut({ 
+                    redirect: false,
+                  });
+                  // Force a hard redirect to login page, clearing navigation history
+                  window.location.replace('/auth/login');
+                }}
                 className="text-sm text-red-600 hover:text-red-800"
               >
                 Logout
