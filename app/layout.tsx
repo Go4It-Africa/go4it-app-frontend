@@ -1,6 +1,7 @@
 import type { Metadata } from "next";
 import "./globals.css";
 import NextAuthProvider from '@/app/providers/NextAuthProvider';
+import { ClubProvider } from '@/app/context/ClubContext';
 export const metadata: Metadata = {
   title: {
     default: 'Go4it - Sports Management Technology',
@@ -33,7 +34,9 @@ export default function RootLayout({
         suppressHydrationWarning
       >
         <NextAuthProvider>
-            {children}
+            <ClubProvider>
+                {children}
+            </ClubProvider>
         </NextAuthProvider>
       </body>
     </html>

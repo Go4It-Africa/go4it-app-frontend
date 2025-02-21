@@ -5,6 +5,7 @@ import Link from 'next/link';
 import { useSession, signOut } from 'next-auth/react';
 import { Menu, X, Home, Users, Calendar, Trophy, Settings } from 'lucide-react';
 import Loader from '../Loader';
+import { useClub } from '@/app/context/ClubContext';
 interface NavItem {
   label: string;
   href: string;
@@ -30,6 +31,8 @@ export const DashboardLayout = ({ children }: DashboardLayoutProps) => {
   const { data: session } = useSession();
   const userRole = session?.user?.role;
 
+  const { club } = useClub();
+  
   useEffect(() => {
     setMounted(true);
   }, []);
@@ -53,7 +56,7 @@ export const DashboardLayout = ({ children }: DashboardLayoutProps) => {
         <div className="h-full flex flex-col">
           {/* Logo */}
           <div className="h-16 flex items-center px-6 border-b">
-            <h1 className="text-xl font-bold text-primary">Sports Manager</h1>
+            <h1 className="text-xl font-bold text-primary">{club?.name}</h1>
           </div>
 
           {/* Navigation */}

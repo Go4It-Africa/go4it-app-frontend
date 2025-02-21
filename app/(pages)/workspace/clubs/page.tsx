@@ -5,8 +5,14 @@ import { Layout } from "@/app/components/layout/WorkSpaceLayout";
 import Card from "@/app/components/ui/Card";
 import { Users, ArrowRight } from "lucide-react";
 import Image from 'next/image';
+import { useRouter } from "next/navigation";
+import Link from "next/link";
+import { useClub } from "@/app/context/ClubContext";
 
 export default function ClubsWorkspacePage() {
+  const router = useRouter();
+
+  const { setClub } = useClub();
 
   if(!clubs.length) {
     return (
@@ -27,7 +33,9 @@ return (
         description="Choose a club to manage or create a new one" 
         buttonText="Create New Club"
         noItems={false}
-        buttonAction={() => {}}
+        buttonAction={() => {
+          router.push('/workspace/clubs/create')
+        }}
         
     >
       <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-4">
@@ -54,11 +62,13 @@ return (
                       </div>
                       <div className="text-sm text-gray-600">{country}</div>
                     </div>
-            
-                    <button className="mt-auto w-full bg-primary/10 text-primary font-medium py-2 rounded-lg flex items-center justify-center gap-2 hover:bg-primary/20 transition-colors">
-                      Open Dashboard
-                      <ArrowRight size={16} />
-                    </button>
+              
+                    <Link href={`/dashboard/club/${id}`} onClick={() => setClub(club)}>
+                      <button className="mt-auto w-full bg-primary/10 text-primary font-medium py-2 rounded-lg flex items-center justify-center gap-2 hover:bg-primary/20 transition-colors">
+                        Open Dashboard
+                        <ArrowRight size={16} />
+                      </button>
+                    </Link>
                   </div>
                 </Card>
               </div>
