@@ -1,5 +1,6 @@
 import { useFormik } from 'formik';
 import { signIn } from 'next-auth/react';
+import Link from 'next/link';
 import * as Yup from 'yup';
 
 const loginSchema = Yup.object().shape({
@@ -83,6 +84,21 @@ export const LoginForm = () => {
       >
         Log In
       </button>
+
+      <div className='flex items-center justify-start gap-2'>
+        <p className='text-sm font-bold text-black'>
+          Don&apos;t have an account?{' '}
+        </p>
+        <Link href='/auth/signup' className='text-primary text-sm ml-auto'>
+          Create Account
+        </Link>
+      </div>
+
+      <div className='flex items-center justify-center gap-2'>
+        <div className='w-full border-t border-gray-300'></div>
+        <p className='text-sm font-bold text-black'>OR</p>
+        <div className='w-full border-t border-gray-300'></div>
+      </div>
 
       <div className='mt-4'>
         <button
