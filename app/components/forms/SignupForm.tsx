@@ -2,7 +2,8 @@ import { useFormik } from 'formik';
 import { signIn } from 'next-auth/react';
 import Link from 'next/link';
 import * as Yup from 'yup';
-
+import { toast } from 'react-toastify';
+import { useRouter } from 'next/navigation';
 const loginSchema = Yup.object().shape({
   email: Yup.string()
     .email('Must be a valid email')
@@ -18,6 +19,8 @@ const loginSchema = Yup.object().shape({
 });
 
 export const SignupForm = () => {
+  const router = useRouter();
+
   const formik = useFormik({
     initialValues: {
       email: '',
@@ -29,22 +32,33 @@ export const SignupForm = () => {
     },
     validationSchema: loginSchema,
     onSubmit: async (values) => {
-      console.log('API_URL:', process.env.API_URL);
-
-      const result = await signIn('credentials', {
-        redirect: true,
+      const userData = {
         email: values.email,
+        password: values.password,
         first_name: values.first_name,
         last_name: values.last_name,
-        password: values.password,
         role: values.role,
-        //callbackUrl: '/dashboard'
+      };
+
+      const response = await fetch('/api/signup', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify(userData),
       });
 
-      console.log('result in login form', result);
-      if (result?.error) {
-        // Handle error
-        console.error(result.error);
+      console.log('THE RESPONSE', response);
+
+      if (response.ok) {
+        //show success message to user
+        toast.success('Signup successful');
+
+        //redirect to login page
+        router.push('/auth/login');
+      } else {
+        const errorData = await response.json();
+        console.log('Failed to signup user', errorData);
+        //show error message to user
+        toast.error(errorData.message || 'Failed to signup user');
       }
     },
   });
@@ -69,6 +83,11 @@ export const SignupForm = () => {
               }
                 `}
             />
+            {formik.touched.first_name && formik.errors.first_name && (
+              <div className='text-red-500 text-sm'>
+                {formik.errors.first_name}
+              </div>
+            )}
           </div>
 
           <div className='w-1/2'>
@@ -86,6 +105,11 @@ export const SignupForm = () => {
               }
                 `}
             />
+            {formik.touched.last_name && formik.errors.last_name && (
+              <div className='text-red-500 text-sm'>
+                {formik.errors.last_name}
+              </div>
+            )}
           </div>
         </div>
 
@@ -123,9 +147,13 @@ export const SignupForm = () => {
             }
                 `}
           >
+            <option value=''>Select a role</option>
             <option value='club_admin'>Club Administrator</option>
             <option value='tournament_organizer'>Tournament Organizer</option>
           </select>
+          {formik.touched.role && formik.errors.role && (
+            <div className='text-red-500 text-sm'>{formik.errors.role}</div>
+          )}
         </div>
 
         <div className='flex items-center gap-2'>
@@ -160,20 +188,28 @@ export const SignupForm = () => {
               id='confirm_password'
               {...formik.getFieldProps('confirm_password')}
               className={`form-input ${
-                formik.touched.password && formik.errors.password
+                formik.touched.confirm_password &&
+                formik.errors.confirm_password
                   ? 'border-red-500 focus:border-red-500 focus:ring-red-500'
                   : 'border-gray-300 focus:border-colors-primary focus:ring-colors-primary'
               }
                 `}
             />
+            {formik.touched.confirm_password &&
+              formik.errors.confirm_password && (
+                <div className='text-red-500 text-sm'>
+                  {formik.errors.confirm_password}
+                </div>
+              )}
           </div>
         </div>
 
         <button
           type='submit'
+          disabled={formik.isSubmitting}
           className='w-full bg-primary text-white py-2 px-4 rounded-md hover:bg-primary/90'
         >
-          Log In
+          {formik.isSubmitting ? 'Signing Up...' : 'Sign Up'}
         </button>
 
         <div className='flex items-center justify-start gap-2'>
