@@ -19,8 +19,6 @@ export const LoginForm = () => {
     },
     validationSchema: loginSchema,
     onSubmit: async (values) => {
-      console.log('API_URL:', process.env.API_URL);
-
       const result = await signIn('credentials', {
         redirect: true,
         email: values.email,
