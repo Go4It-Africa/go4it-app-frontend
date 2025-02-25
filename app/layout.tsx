@@ -1,7 +1,10 @@
-import type { Metadata } from "next";
-import "./globals.css";
+import type { Metadata } from 'next';
+import './globals.css';
 import NextAuthProvider from '@/app/providers/NextAuthProvider';
 import { ClubProvider } from '@/app/context/ClubContext';
+import { ToastContainer } from 'react-toastify';
+import 'react-toastify/dist/ReactToastify.css';
+
 export const metadata: Metadata = {
   title: {
     default: 'Go4it - Sports Management Technology',
@@ -28,16 +31,23 @@ export default function RootLayout({
   children: React.ReactElement;
 }>) {
   return (
-    <html lang="en" suppressHydrationWarning>
-      <body
-        className={`antialiased`}
-        suppressHydrationWarning
-      >
+    <html lang='en' suppressHydrationWarning>
+      <body className={`antialiased`} suppressHydrationWarning>
         <NextAuthProvider>
-            <ClubProvider>
-                {children}
-            </ClubProvider>
+          <ClubProvider>{children}</ClubProvider>
         </NextAuthProvider>
+        <ToastContainer
+          position='top-right'
+          autoClose={5000}
+          hideProgressBar={false}
+          newestOnTop={false}
+          closeOnClick
+          rtl={false}
+          pauseOnFocusLoss
+          draggable
+          pauseOnHover
+          theme='light'
+        />
       </body>
     </html>
   );
