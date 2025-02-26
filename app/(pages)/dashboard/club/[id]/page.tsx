@@ -20,6 +20,7 @@ import { Player } from '@/app/types';
 import { players } from '@/app/mock_data/player';
 import Loader from '@/app/components/Loader';
 import { useRouter } from 'next/navigation';
+import { CreatePlayerModal } from '@/app/components/players/PlayerModal';
 // type ClubDashboardProps = {
 //   params: { id: string };
 // }
@@ -123,6 +124,8 @@ const ClubDashboard = () => {
   console.log('the club in dashboard', club);
 
   const [isLoading, setIsLoading] = useState(true);
+  const [isCreatePlayerModalOpen, setIsCreatePlayerModalOpen] =
+    useState<boolean>(false);
 
   useEffect(() => {
     if (club) {
@@ -269,7 +272,10 @@ const ClubDashboard = () => {
             <div className='p-6'>
               <h2 className='text-lg font-bold mb-6'>Quick Actions</h2>
               <div className='space-y-3'>
-                <button className='w-full bg-primary text-white px-4 py-2 rounded-lg flex items-center justify-center gap-2'>
+                <button
+                  onClick={() => setIsCreatePlayerModalOpen(true)}
+                  className='w-full bg-primary text-white px-4 py-2 rounded-lg flex items-center justify-center gap-2'
+                >
                   <Users size={20} />
                   Add New Player
                 </button>
@@ -288,6 +294,10 @@ const ClubDashboard = () => {
 
         <PlayersTable />
       </div>
+      <CreatePlayerModal
+        isOpen={isCreatePlayerModalOpen}
+        onClose={() => setIsCreatePlayerModalOpen(false)}
+      />
     </div>
   );
 };
