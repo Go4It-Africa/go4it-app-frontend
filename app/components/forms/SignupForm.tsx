@@ -46,8 +46,6 @@ export const SignupForm = () => {
         body: JSON.stringify(userData),
       });
 
-      console.log('THE RESPONSE', response);
-
       if (response.ok) {
         //show success message to user
         toast.success('Signup successful');
@@ -56,7 +54,6 @@ export const SignupForm = () => {
         router.push('/auth/login');
       } else {
         const errorData = await response.json();
-        console.log('Failed to signup user', errorData);
         //show error message to user
         toast.error(errorData.message || 'Failed to signup user');
       }

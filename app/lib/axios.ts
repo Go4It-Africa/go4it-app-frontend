@@ -11,23 +11,25 @@ const axiosInstance = axios.create({
 const serverInstance = axios.create({
   baseURL: env.API_URL,
   headers: {
-    'Content-Type': 'application/json'
-  }
+    'Content-Type': 'application/json',
+  },
 });
 
-axiosInstance.interceptors.request.use(async (config) => {
-  const session = await getSession();
-  if (session?.accessToken) {
-    config.headers.Authorization = `Bearer ${session.accessToken}`;
+axiosInstance.interceptors.request.use(
+  async (config) => {
+    const session = await getSession();
+    if (session?.accessToken) {
+      config.headers.Authorization = `Bearer ${session.accessToken}`;
+    }
+    if (!config.url?.startsWith('http')) {
+      config.url = `${config.baseURL}${config.url}`;
+    }
+    return config;
+  },
+  (error) => {
+    return Promise.reject(error);
   }
-  if (!config.url?.startsWith('http')) {
-    config.url = `${config.baseURL}${config.url}`;
-  }
-  return config;
-},
-(error) => {
-  return Promise.reject(error);
-});
+);
 
 serverInstance.interceptors.request.use(
   async (config) => {
@@ -53,8 +55,8 @@ serverInstance.interceptors.request.use(
 
 const fetcher = async (args: string | [string, AxiosRequestConfig]) => {
   const [url, config] = Array.isArray(args) ? args : [args];
-  
-  const res = await axiosInstance.get( url, { ...config });
+
+  const res = await axiosInstance.get(url, { ...config });
 
   return res.data;
 };
@@ -67,13 +69,7 @@ const fetcherPost = async (args: string | [string, AxiosRequestConfig]) => {
   return res.data;
 };
 
-export {
-  serverInstance,
-  axiosInstance,
-  fetcher,
-  fetcherPost
-}
-
+export { serverInstance, axiosInstance, fetcher, fetcherPost };
 
 //TO USE:
 // const data = await fetcher('/api/users');
