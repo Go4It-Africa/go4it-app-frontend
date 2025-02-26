@@ -2,7 +2,7 @@ import { useFormik } from 'formik';
 import { signIn } from 'next-auth/react';
 import Link from 'next/link';
 import * as Yup from 'yup';
-
+import { toast } from 'react-toastify';
 const loginSchema = Yup.object().shape({
   email: Yup.string()
     .email('Must be a valid email')
@@ -23,13 +23,12 @@ export const LoginForm = () => {
         redirect: true,
         email: values.email,
         password: values.password,
-        //callbackUrl: '/dashboard'
       });
 
       console.log('result in login form', result);
       if (result?.error) {
-        // Handle error
-        console.error(result.error);
+        // Handle error from signIn
+        toast.error(result.error);
       }
     },
   });
@@ -95,8 +94,9 @@ export const LoginForm = () => {
         <button
           type='submit'
           className='w-full bg-primary text-white py-2 px-4 rounded-md hover:bg-primary/90'
+          disabled={formik.isSubmitting}
         >
-          Log In
+          {formik.isSubmitting ? 'Logging In...' : 'Log In'}
         </button>
 
         <div className='flex items-center justify-start gap-2'>
