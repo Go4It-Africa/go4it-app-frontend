@@ -4,7 +4,7 @@ import * as z from 'zod';
 import { toFormikValidationSchema } from 'zod-formik-adapter';
 import { Upload } from 'lucide-react';
 import { Modal } from '@/app/components/ui/Modal';
-//import { useClub } from '@/app/context/ClubContext';
+import { useClub } from '@/app/context/ClubContext';
 import Image from 'next/image';
 import countries from '@/app/mock_data/countries';
 
@@ -14,32 +14,29 @@ const createPlayerSchema = z.object({
   country_of_residence: z.string().min(1, 'Country of residence is required'),
   date_of_birth: z
     .string()
-    .transform((str) => new Date(str))
-    .pipe(
-      z
-        .date()
-        .max(new Date(), 'Date of birth must be in the past')
-        .refine((date) => {
-          const today = new Date();
-          const minAge = 8;
-          const minDate = new Date(
-            today.getFullYear() - minAge,
-            today.getMonth(),
-            today.getDate()
-          );
-          return date <= minDate;
-        }, 'Player must be at least 8 years old')
-    ),
+    .min(1, 'Date of birth is required')
+    .refine((date) => {
+      const dateObj = new Date(date);
+      const today = new Date();
+      const minAge = 7;
+      const minDate = new Date(
+        today.getFullYear() - minAge,
+        today.getMonth(),
+        today.getDate()
+      );
+      return dateObj <= minDate;
+    }, 'Player must be at least 7 years old'),
   birth_certificate_file: z
     .string()
-    .min(1, 'Birth certificate file is required'),
-  category: z.enum(['U9', 'U11', 'U13', 'U15', 'U17']).default('U9'),
+    .min(1, 'Birth certificate file is required')
+    .nullable(),
+  category: z.enum(['U7', 'U9', 'U11', 'U13', 'U15', 'U17']).default('U7'),
   gender: z.enum(['male', 'female'], {
     message: 'Gender is required',
   }),
   nationality: z.string().optional().nullable(),
   position: z
-    .enum(['goalkeeper', 'defender', 'midfielder', 'forward'])
+    .enum(['Goalkeeper', 'Defender', 'Midfielder', 'Attacker'])
     .optional()
     .nullable(),
   height: z
@@ -52,7 +49,7 @@ const createPlayerSchema = z.object({
     .min(10, 'Weight must be at least 10kg')
     .optional()
     .nullable(),
-  photo: z.string().optional().nullable(),
+  photo: z.string().nullable(),
   guardian_name: z.string().min(1, 'Guardian name is required'),
   guardian_phone_number: z
     .string()
@@ -73,20 +70,22 @@ export const CreatePlayerModal = ({
 
   //const categoryRef = useRef('');
 
+  const { club } = useClub();
+
   const formik = useFormik({
     initialValues: {
       first_name: '',
       last_name: '',
       country_of_residence: '',
       date_of_birth: '',
-      birth_certificate_file: '',
+      birth_certificate_file: null,
       category: '',
       gender: '',
       nationality: '',
       position: '',
       height: '',
       weight: '',
-      photo: '',
+      photo: null,
       guardian_name: '',
       guardian_phone_number: '',
     },
@@ -97,10 +96,12 @@ export const CreatePlayerModal = ({
         const response = await fetch('/api/players', {
           method: 'POST',
           headers: { 'Content-Type': 'application/json' },
-          body: JSON.stringify(values),
+          body: JSON.stringify({ ...values, club_id: club?.id || '' }),
         });
 
         const newPlayer = await response.json();
+
+        console.log('NEW PLAYER CREATED:', newPlayer);
         //setPlayer(newPlayer);
         onClose();
       } catch (error) {
@@ -119,6 +120,7 @@ export const CreatePlayerModal = ({
       const today = new Date();
       const age = today.getFullYear() - dateOfBirth.getFullYear();
 
+      if (age <= 7) return 'U7';
       if (age <= 9) return 'U9';
       if (age <= 11) return 'U11';
       if (age <= 13) return 'U13';
@@ -355,7 +357,7 @@ export const CreatePlayerModal = ({
           {/* Height */}
           <div>
             <label htmlFor='height' className='form-label-base'>
-              Height
+              Height (Cms)
             </label>
             <input
               type='number'
@@ -378,7 +380,7 @@ export const CreatePlayerModal = ({
           {/* Weight */}
           <div>
             <label htmlFor='weight' className='form-label-base'>
-              Weight
+              Weight (Kgs)
             </label>
             <input
               type='number'
@@ -489,6 +491,8 @@ export const CreatePlayerModal = ({
                     'birth_certificate_file',
                     URL.createObjectURL(file)
                   );
+                } else {
+                  formik.setFieldValue('birth_certificate_file', null);
                 }
               }}
             />
@@ -502,7 +506,7 @@ export const CreatePlayerModal = ({
             >
               Upload Photo
             </label>
-            {formik.values.birth_certificate_file ? (
+            {formik.values.photo ? (
               <Image
                 src={formik.values.photo}
                 alt='Photo'
@@ -526,9 +530,9 @@ export const CreatePlayerModal = ({
               onChange={(event) => {
                 const file = event.currentTarget.files?.[0];
                 if (file) {
-                  // Handle file upload logic here
-                  // For now, just set a placeholder URL
                   formik.setFieldValue('photo', URL.createObjectURL(file));
+                } else {
+                  formik.setFieldValue('photo', null);
                 }
               }}
             />
