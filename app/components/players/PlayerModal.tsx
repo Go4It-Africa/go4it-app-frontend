@@ -1,4 +1,4 @@
-import React, { useMemo } from 'react';
+import React, { useEffect, useMemo } from 'react';
 import { useFormik } from 'formik';
 import * as z from 'zod';
 import { toFormikValidationSchema } from 'zod-formik-adapter';
@@ -7,6 +7,7 @@ import { Modal } from '@/app/components/ui/Modal';
 import { useClub } from '@/app/context/ClubContext';
 import Image from 'next/image';
 import countries from '@/app/mock_data/countries';
+import { toast } from 'react-toastify';
 
 const createPlayerSchema = z.object({
   first_name: z.string().min(1, 'First name is required'),
@@ -69,7 +70,7 @@ export const CreatePlayerModal = ({
   //const { setPlayer } = usePlayer();
 
   //const categoryRef = useRef('');
-
+  
   const { club } = useClub();
 
   const formik = useFormik({
@@ -92,6 +93,7 @@ export const CreatePlayerModal = ({
     validationSchema: toFormikValidationSchema(createPlayerSchema),
     onSubmit: async (values) => {
       try {
+        console.log('The values', values);
         // Handle club creation API call here
         const response = await fetch('/api/players', {
           method: 'POST',
@@ -103,7 +105,11 @@ export const CreatePlayerModal = ({
 
         console.log('NEW PLAYER CREATED:', newPlayer);
         //setPlayer(newPlayer);
-        onClose();
+        if (response.ok) {
+          toast.success('Player created successfully');
+          formik.resetForm();
+          onClose();
+        }
       } catch (error) {
         console.error('Error creating club:', error);
         //todo: add error message to formik
@@ -130,6 +136,16 @@ export const CreatePlayerModal = ({
     }
     return '';
   }, [formik.values.date_of_birth]);
+
+  //formik.setFieldValue('category', calculateAgeCategory);
+  //TODO: This is a workaround to set the category value when the date of birth is changed
+  useEffect(() => {
+    // Only update if the category is different from the calculated one
+    if (formik.values.category !== calculateAgeCategory) {
+      formik.setFieldValue('category', calculateAgeCategory);
+    }
+  }, [formik, calculateAgeCategory]);
+
 
   return (
     <Modal isOpen={isOpen} onClose={onClose} title='Create New Club'>
@@ -340,10 +356,10 @@ export const CreatePlayerModal = ({
             `}
             >
               <option value=''>Select a position</option>
-              <option value='goalkeeper'>Goalkeeper</option>
-              <option value='defender'>Defender</option>
-              <option value='midfielder'>Midfielder</option>
-              <option value='forward'>Forward</option>
+              <option value='Goalkeeper'>Goalkeeper</option>
+              <option value='Defender'>Defender</option>
+              <option value='Midfielder'>Midfielder</option>
+              <option value='Attacker'>Attacker</option>
             </select>
             {formik.touched.position && formik.errors.position && (
               <div className='mt-1 text-sm text-red-600'>

@@ -17,7 +17,7 @@ import { UserDropdown } from '@/app/components/UserDropdown';
 import { SeasonSelector } from '@/app/components/clubs/ClubSeasonSelector';
 import { Column, DataTable } from '@/app/components/ui/Table';
 import { Player } from '@/app/types';
-import { players } from '@/app/mock_data/player';
+//import { players } from '@/app/mock_data/player';
 import Loader from '@/app/components/Loader';
 import { useRouter } from 'next/navigation';
 import { CreatePlayerModal } from '@/app/components/players/PlayerModal';
@@ -26,6 +26,18 @@ import { CreatePlayerModal } from '@/app/components/players/PlayerModal';
 // }
 
 const PlayersTable = () => {
+  const { club } = useClub();
+  const [players, setPlayers] = useState<Player[]>([]);
+  useEffect(() => {
+    const fetchPlayers = async () => {
+      const response = await fetch(`/api/players?club_id=${club?.id}`);
+      const data = await response.json();
+      console.log('The players data', data);
+      setPlayers(data.data);
+    };
+    fetchPlayers();
+  }, [club?.id]);
+
   const router = useRouter();
 
   const columns: Column<Player>[] = [
@@ -67,20 +79,22 @@ const PlayersTable = () => {
     {
       key: 'birth_certificate_no',
       title: 'Birth Certificate No',
+      render: (value: string | unknown) => (value as string) || 'Pending',
       sortable: false,
     },
     {
       key: 'birth_certificate_file',
       title: 'Birth Certificate File',
       sortable: false,
+      render: (value: string | unknown) => (value as string) || 'Pending',
     },
     {
-      key: 'category',
+      key: 'name',
       title: 'Category',
       sortable: true,
     },
     {
-      key: 'status',
+      key: 'is_active',
       title: 'Status',
       sortable: true,
     },
@@ -103,6 +117,14 @@ const PlayersTable = () => {
       danger: true,
     },
   ];
+
+  console.log('The players in the dashboard', players);
+  if (!players.length)
+    return (
+      <div className='mt-8'>
+        <h2 className='text-lg font-bold'>No players found</h2>
+      </div>
+    );
 
   return (
     <DataTable

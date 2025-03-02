@@ -46,7 +46,8 @@ export interface Player {
   weight?: number;
   position: string;
   category: string;
-  status?: 'active' | 'inactive';
+  name: string;
+  is_active?: boolean;
   created_at?: string;
   updated_at?: string;
   club_id?: number;

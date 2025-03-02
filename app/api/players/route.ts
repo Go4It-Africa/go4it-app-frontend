@@ -21,7 +21,9 @@ export async function GET(req: NextRequest, res: NextResponse) {
     return NextResponse.json({ error: sessionData.error }, { status: 401 });
   }
 
-  return handleGet(req, res, sessionData.userId);
+  const clubId = req.nextUrl.searchParams.get('club_id');
+
+  return handleGet(req, res, clubId);
 }
 
 const handlePost = async (
@@ -44,9 +46,14 @@ const handlePost = async (
   }
 };
 
-const handleGet = async (req: NextRequest, res: NextResponse, club: string) => {
+const handleGet = async (req: NextRequest, res: NextResponse, club: string | null) => {
   try {
-    const response = await serverInstance.get(`/players?club_id=${club}`);
+    if (!club) {
+      //TODO: Unless we want to get all players
+      return NextResponse.json({ error: 'Club ID is required' }, { status: 400 });
+    }
+
+    const response = await serverInstance.get(`/players/club/${club}`);
     return NextResponse.json(response.data, { status: 200 });
   } catch (error) {
     return handleErrors(error);
