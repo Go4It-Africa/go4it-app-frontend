@@ -4,11 +4,11 @@ import * as z from 'zod';
 import { toFormikValidationSchema } from 'zod-formik-adapter';
 import { Upload } from 'lucide-react';
 import { Modal } from '@/app/components/ui/Modal';
-import { useClub } from '@/app/context/ClubContext';
 import Image from 'next/image';
 import countries from '@/app/mock_data/countries';
 import { toast } from 'react-toastify';
-
+import { useClubStore } from '@/app/store/club';
+import { usePlayerStore } from '@/app/store/player';
 const createPlayerSchema = z.object({
   first_name: z.string().min(1, 'First name is required'),
   last_name: z.string().min(1, 'Last name is required'),
@@ -67,11 +67,11 @@ export const CreatePlayerModal = ({
   isOpen,
   onClose,
 }: CreatePlayerModalProps) => {
-  //const { setPlayer } = usePlayer();
-
-  //const categoryRef = useRef('');
   
-  const { club } = useClub();
+  const { currentClub } = useClubStore();
+
+  const { addPlayer, isLoading } = usePlayerStore();
+
 
   const formik = useFormik({
     initialValues: {
@@ -93,25 +93,25 @@ export const CreatePlayerModal = ({
     validationSchema: toFormikValidationSchema(createPlayerSchema),
     onSubmit: async (values) => {
       try {
-        console.log('The values', values);
-        // Handle club creation API call here
-        const response = await fetch('/api/players', {
-          method: 'POST',
-          headers: { 'Content-Type': 'application/json' },
-          body: JSON.stringify({ ...values, club_id: club?.id || '' }),
-        });
+        const data = { 
+          ...values, 
+          club_id: currentClub?.id || '',
+          name: values.category,
+          guardian_first_name: values.guardian_name,
+          guardian_phone: values.guardian_phone_number,
+          id: 0
+        };
 
-        const newPlayer = await response.json();
+        await addPlayer(data);
 
-        console.log('NEW PLAYER CREATED:', newPlayer);
-        //setPlayer(newPlayer);
-        if (response.ok) {
+        if (!isLoading) {
           toast.success('Player created successfully');
           formik.resetForm();
           onClose();
         }
       } catch (error) {
-        console.error('Error creating club:', error);
+        console.error('Error creating player:', error);
+        toast.error('Failed to create player');
         //todo: add error message to formik
       }
     },
@@ -148,7 +148,7 @@ export const CreatePlayerModal = ({
 
 
   return (
-    <Modal isOpen={isOpen} onClose={onClose} title='Create New Club'>
+    <Modal isOpen={isOpen} onClose={onClose} title='Create New Player'>
       <form onSubmit={formik.handleSubmit} className='space-y-6'>
         {/* Basic Information */}
         <h4 className='text-sm font-medium text-gray-900'>Basic Information</h4>

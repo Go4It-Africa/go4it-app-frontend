@@ -6,10 +6,10 @@ export interface User {
 }
 
 export interface Club {
-  id: number;
+  id?: number;
   name: string;
-  user_id: number;
-  logo: Blob | string;
+  user_id?: number;
+  logo?: Blob | string | null;
   country: string;
   city?: string;
   website_url?: string;
@@ -36,21 +36,21 @@ export interface Player {
   first_name: string;
   last_name: string;
   date_of_birth: string;
-  photo: string;
+  photo: Blob | string | null;
   birth_certificate_no?: string;
-  birth_certificate_file?: string;
+  birth_certificate_file?: Blob | string | null;
   country_of_residence?: string;
   city_of_residence?: string;
   nationality?: string;
-  height?: number;
-  weight?: number;
+  height?: number | string;
+  weight?: number | string;
   position: string;
   category: string;
-  name: string;
+  name?: string;
   is_active?: boolean;
   created_at?: string;
   updated_at?: string;
-  club_id?: number;
+  club_id?: number | string;
   club_name?: string;
   season_id?: number;
   season_name?: string;
