@@ -1,56 +1,74 @@
 'use client';
 
-//import { clubs } from "@/app/mock_data/club";
 import { Layout } from '@/app/components/layout/WorkSpaceLayout';
 import Card from '@/app/components/ui/Card';
 import { Users, ArrowRight } from 'lucide-react';
 import Image from 'next/image';
 import Link from 'next/link';
-import { useClub } from '@/app/context/ClubContext';
 import { useEffect, useMemo, useState } from 'react';
 import Loader from '@/app/components/Loader';
 import { CreateClubModal } from '@/app/components/clubs/ClubModal';
-import { Club } from '@/app/types';
-
+import { useClubStore } from '@/app/store/club';
+import { signOut } from 'next-auth/react';
 export default function ClubsWorkspacePage() {
-  const { setClub } = useClub();
+  const { clubs, isLoading, error, fetchClubs } = useClubStore();
 
-  const [clubs, setClubs] = useState<Club[]>([]);
-  const [loading, setLoading] = useState<boolean>(false);
   const [isCreateModalOpen, setIsCreateModalOpen] = useState<boolean>(false);
 
   useEffect(() => {
-    const fetchData = async () => {
-      setLoading(true);
-      const response = await fetch('/api/clubs', {
-        method: 'GET',
-        headers: {
-          'Content-Type': 'application/json',
-        },
-      });
-
-      if (response.ok) {
-        const res = await response.json();
-        const { clubs } = res;
-        setClubs(clubs);
-        setLoading(false);
-      } else {
-        setLoading(false);
-      }
-    };
-    fetchData();
-  }, []);
+    fetchClubs();
+  }, [fetchClubs]);
 
   const processedClubs = useMemo(() => {
-    return clubs.map((club) => ({
-      ...club,
-      logo:
-        club.logo instanceof Blob ? URL.createObjectURL(club.logo) : club.logo,
-    }));
-  }, [clubs]);
+    if(!isLoading && !error) {
+      return clubs.map((club) => ({
+        ...club,
+        logo:
+          club.logo instanceof Blob ? URL.createObjectURL(club.logo) : club.logo,
+      }));
+    }
+  }, [clubs, isLoading, error]);
 
-  if (loading) {
+  if (isLoading) {
     return <Loader />;
+  }
+
+  if (error) {
+    if(error === 'Request failed with status code 401') {
+      signOut();
+    } else {
+      return (
+        <div className='flex flex-col items-center justify-center h-screen'>
+          <div>
+            <h2>We&apos;re having trouble loading the clubs</h2>
+          </div>
+          <div className='text-red-500 text-center'>
+            {error}
+          </div>
+          <button onClick={() => fetchClubs()}>
+            Try again
+          </button>
+          <button onClick={() => signOut()}>
+            Sign out
+          </button>
+        </div>
+      );
+    }
+  }
+
+  if (!clubs.length) {
+    return (
+      <Layout
+        title='Select Workspace'
+        description='Choose a club to manage or create a new one'
+        buttonText='Create New Club'
+        page='clubs'
+        noItems={true}
+        buttonAction={() => {
+          setIsCreateModalOpen(true);
+        }}
+      />
+    );
   }
 
   if (!clubs.length) {
@@ -73,8 +91,6 @@ export default function ClubsWorkspacePage() {
     );
   }
 
-  console.log('the clubs', clubs);
-
   return (
     <Layout
       title='Select Workspace'
@@ -86,7 +102,7 @@ export default function ClubsWorkspacePage() {
       }}
     >
       <div className='grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-4'>
-        {processedClubs.map((club) => {
+        {processedClubs?.map((club) => {
           if (!club) return null;
           const { id, name, logo, sport, playerCount, country } = club;
           return (
@@ -126,7 +142,7 @@ export default function ClubsWorkspacePage() {
 
                   <Link
                     href={`/dashboard/club/${id}`}
-                    onClick={() => setClub(club)}
+                    //onClick={() => setClub(club)}
                   >
                     <button className='mt-auto w-full bg-primary/10 text-primary font-medium py-2 rounded-lg flex items-center justify-center gap-2 hover:bg-primary/20 transition-colors'>
                       Open Dashboard

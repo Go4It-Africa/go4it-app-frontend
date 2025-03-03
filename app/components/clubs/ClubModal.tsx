@@ -4,9 +4,11 @@ import * as z from 'zod';
 import { toFormikValidationSchema } from 'zod-formik-adapter';
 import { Upload, Globe, Link } from 'lucide-react';
 import { Modal } from '@/app/components/ui/Modal';
-import { useClub } from '@/app/context/ClubContext';
+//import { useClub } from '@/app/context/ClubContext';
+import { useClubStore } from '@/app/store/club';
 import Image from 'next/image';
 import countries from '@/app/mock_data/countries';
+import { toast } from 'react-toastify';
 
 const createClubSchema = z.object({
   name: z.string().min(1, 'Club name is required'),
@@ -27,7 +29,7 @@ interface CreateClubModalProps {
 }
 
 export const CreateClubModal = ({ isOpen, onClose }: CreateClubModalProps) => {
-  const { setClub } = useClub();
+  const { isLoading, addClub } = useClubStore();
 
   const formik = useFormik({
     initialValues: {
@@ -47,18 +49,19 @@ export const CreateClubModal = ({ isOpen, onClose }: CreateClubModalProps) => {
     onSubmit: async (values) => {
       try {
         // Handle club creation API call here
-        const response = await fetch('/api/clubs', {
-          method: 'POST',
-          headers: { 'Content-Type': 'application/json' },
-          body: JSON.stringify(values),
-        });
-
-        const newClub = await response.json();
-        setClub(newClub);
-        onClose();
+        await addClub(values);
+        
+        if(!isLoading) {
+          setTimeout(() => {
+            onClose();
+            formik.resetForm();
+            toast.success('Club created successfully');
+          }, 3000);
+        }
       } catch (error) {
         console.error('Error creating club:', error);
         //todo: add error message to formik
+        toast.error('Failed to create club');
       }
     },
   });
@@ -152,6 +155,7 @@ export const CreateClubModal = ({ isOpen, onClose }: CreateClubModalProps) => {
               }
             `}
             >
+              <option value=''>Select Sport</option>
               <option value='football'>Football</option>
               <option value='athletics'>Athletics</option>
               <option value='rugby'>Rugby</option>

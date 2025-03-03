@@ -1,9 +1,9 @@
 import type { Metadata } from 'next';
 import './globals.css';
 import NextAuthProvider from '@/app/providers/NextAuthProvider';
-import { ClubProvider } from '@/app/context/ClubContext';
 import { ToastContainer } from 'react-toastify';
 import 'react-toastify/dist/ReactToastify.css';
+import StoreProvider from './store/StoreProvider';
 
 export const metadata: Metadata = {
   title: {
@@ -34,7 +34,8 @@ export default function RootLayout({
     <html lang='en' suppressHydrationWarning>
       <body className={`antialiased`} suppressHydrationWarning>
         <NextAuthProvider>
-          <ClubProvider>{children}</ClubProvider>
+          {/* <ClubProvider>{children}</ClubProvider> */}
+          <StoreProvider>{children}</StoreProvider>
         </NextAuthProvider>
         <ToastContainer
           position='top-right'

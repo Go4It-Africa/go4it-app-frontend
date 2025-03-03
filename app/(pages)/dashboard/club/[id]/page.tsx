@@ -12,31 +12,23 @@ import {
 } from 'lucide-react';
 import Image from 'next/image';
 
-import { useClub } from '@/app/context/ClubContext';
 import { UserDropdown } from '@/app/components/UserDropdown';
 import { SeasonSelector } from '@/app/components/clubs/ClubSeasonSelector';
 import { Column, DataTable } from '@/app/components/ui/Table';
 import { Player } from '@/app/types';
-//import { players } from '@/app/mock_data/player';
 import Loader from '@/app/components/Loader';
-import { useRouter } from 'next/navigation';
+import { useParams, useRouter } from 'next/navigation';
 import { CreatePlayerModal } from '@/app/components/players/PlayerModal';
-// type ClubDashboardProps = {
-//   params: { id: string };
-// }
+import { useClubStore } from '@/app/store/club';
+import { usePlayerStore } from '@/app/store/player';
 
 const PlayersTable = () => {
-  const { club } = useClub();
-  const [players, setPlayers] = useState<Player[]>([]);
+  const { currentClub } = useClubStore();
+  const { players, fetchPlayers } = usePlayerStore();
+
   useEffect(() => {
-    const fetchPlayers = async () => {
-      const response = await fetch(`/api/players?club_id=${club?.id}`);
-      const data = await response.json();
-      console.log('The players data', data);
-      setPlayers(data.data);
-    };
-    fetchPlayers();
-  }, [club?.id]);
+    fetchPlayers(currentClub?.id);
+  }, [currentClub?.id, fetchPlayers]);
 
   const router = useRouter();
 
@@ -118,8 +110,7 @@ const PlayersTable = () => {
     },
   ];
 
-  console.log('The players in the dashboard', players);
-  if (!players.length)
+  if (players && !players.length)
     return (
       <div className='mt-8'>
         <h2 className='text-lg font-bold'>No players found</h2>
@@ -141,9 +132,16 @@ const PlayersTable = () => {
 };
 
 const ClubDashboard = () => {
-  const { club } = useClub();
+  const { currentClub, viewClub } = useClubStore();
 
-  console.log('the club in dashboard', club);
+  const params = useParams(); 
+  const id = params.id;
+
+  useEffect(() => {
+    viewClub(Number(id));
+  }, [id, viewClub]);
+
+  const club = currentClub;
 
   const [isLoading, setIsLoading] = useState(true);
   const [isCreatePlayerModalOpen, setIsCreatePlayerModalOpen] =
@@ -314,7 +312,7 @@ const ClubDashboard = () => {
           </Card>
         </div>
 
-        <PlayersTable />
+        {club && <PlayersTable />}
       </div>
       <CreatePlayerModal
         isOpen={isCreatePlayerModalOpen}

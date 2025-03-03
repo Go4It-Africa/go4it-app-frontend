@@ -5,7 +5,8 @@ import Link from 'next/link';
 import { useSession, signOut } from 'next-auth/react';
 import { Menu, X, Home, Users, Calendar, Trophy, Settings } from 'lucide-react';
 import Loader from '../Loader';
-import { useClub } from '@/app/context/ClubContext';
+import { useClubStore } from '@/app/store/club';
+import { useParams } from 'next/navigation';
 interface NavItem {
   label: string;
   href: string;
@@ -31,11 +32,21 @@ export const DashboardLayout = ({ children }: DashboardLayoutProps) => {
   const { data: session } = useSession();
   const userRole = session?.user?.role;
 
-  const { club } = useClub();
+  const { currentClub, viewClub } = useClubStore();
+  const params = useParams(); 
   
   useEffect(() => {
     setMounted(true);
   }, []);
+
+  useEffect(() => {
+    if(!currentClub) {
+      const clubId = params.id;
+      if(clubId) {
+        viewClub(Number(clubId));
+      }
+    }
+  }, [currentClub, viewClub, params]);
 
   if (!mounted) {
     return <Loader />;
@@ -60,7 +71,7 @@ export const DashboardLayout = ({ children }: DashboardLayoutProps) => {
           <div className="h-full flex flex-col">
             {/* Logo */}
             <div className="h-16 flex items-center px-6 border-b">
-              <h1 className="text-xl font-bold text-primary">{club?.name}</h1>
+              <h1 className="text-xl font-bold text-primary">{currentClub?.name}</h1>
             </div>
 
             {/* Navigation */}

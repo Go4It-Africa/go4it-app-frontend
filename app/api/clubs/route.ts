@@ -20,8 +20,14 @@ export async function GET(req: NextRequest, res: NextResponse) {
   if ('error' in sessionData) {
     return NextResponse.json({ error: sessionData.error }, { status: 401 });
   }
-
-  return handleGet(req, res, sessionData.userId);
+  //get params from url
+  const params = req.nextUrl.searchParams;
+  const clubId = params.get('id');
+  if (clubId) {
+    return handleGetClubById(req, res, clubId);
+  } else {
+    return handleGet(req, res, sessionData.userId);
+  }
 }
 
 const handlePost = async (
@@ -47,6 +53,15 @@ const handlePost = async (
 const handleGet = async (req: NextRequest, res: NextResponse, user: string) => {
   try {
     const response = await serverInstance.get(`/clubs?user_id=${user}`);
+    return NextResponse.json(response.data, { status: 200 });
+  } catch (error) {
+    return handleErrors(error);
+  }
+};
+
+const handleGetClubById = async (req: NextRequest, res: NextResponse, clubId: string) => {
+  try {
+    const response = await serverInstance.get(`/clubs/${clubId}`);
     return NextResponse.json(response.data, { status: 200 });
   } catch (error) {
     return handleErrors(error);
