@@ -21,6 +21,12 @@ export async function GET(req: NextRequest, res: NextResponse) {
     return NextResponse.json({ error: sessionData.error }, { status: 401 });
   }
 
+  const params = req.nextUrl.searchParams;
+  const playerId = params.get('id');
+  if (playerId) {
+    return handleGetPlayerById(req, res, playerId);
+  }
+
   const clubId = req.nextUrl.searchParams.get('club_id');
 
   return handleGet(req, res, clubId);
@@ -54,6 +60,15 @@ const handleGet = async (req: NextRequest, res: NextResponse, club: string | nul
     }
 
     const response = await serverInstance.get(`/players/club/${club}`);
+    return NextResponse.json(response.data, { status: 200 });
+  } catch (error) {
+    return handleErrors(error);
+  }
+};
+
+const handleGetPlayerById = async (req: NextRequest, res: NextResponse, playerId: string) => {
+  try {
+    const response = await serverInstance.get(`/players/${playerId}`);
     return NextResponse.json(response.data, { status: 200 });
   } catch (error) {
     return handleErrors(error);

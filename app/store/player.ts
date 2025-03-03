@@ -11,25 +11,25 @@ export type PlayerState = {
 
 export type PlayerActions = {
     fetchPlayers: (clubId?: number) => void;
-    viewPlayer: (player: Player) => void;
+    viewPlayer: ( playerId: number) => void;
     addPlayer: (player: Player) => void;
     updatePlayer: (playerId: number, playerData: Partial<Player>) => void;
     deletePlayer: (playerId: number) => void;
 }
 
-export const usePlayerStore = create<PlayerState & PlayerActions>((set, get) => ({
+export const usePlayerStore = create<PlayerState & PlayerActions>((set) => ({
   players: [],
   currentPlayer: null,
   isLoading: false,
   error: null,
-  viewPlayer: (player: Player) => {
+  viewPlayer: async (playerId: number) => {
     set({ isLoading: true, error: null });
-    const currentPlayer = get().players.find((p) => p.id === player.id);
-
-    if(currentPlayer) {
-      set({ currentPlayer, isLoading: false });
-    } else {
-      set({ isLoading: false, error: 'Player not found' });
+    //const currentPlayer = get().players.find((p) => p.id === playerId);
+    try {
+        const currentPlayer = await axios.get(`/api/players?id=${playerId}`);
+        set({ currentPlayer: currentPlayer.data.data[0], isLoading: false })
+    } catch(error) {
+        set({ isLoading: false, error: `Failed to fetch player: ${error instanceof Error ? error.message : 'Unknown error'}` });
     }
   },
   fetchPlayers: async (clubId?: number) => {

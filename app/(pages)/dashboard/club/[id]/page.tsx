@@ -75,22 +75,22 @@ const PlayersTable = () => {
       render: (value: string | unknown) => (value as string) || 'Pending',
       sortable: false,
     },
-    {
-      key: 'birth_certificate_file',
-      title: 'Birth Certificate File',
-      sortable: false,
-      render: (value: string | unknown) => (value as string) || 'Pending',
-    },
+    // {
+    //   key: 'birth_certificate_file',
+    //   title: 'Birth Certificate File',
+    //   sortable: false,
+    //   render: (value: string | unknown) => (value as string) || 'Pending',
+    // },
     {
       key: 'name',
       title: 'Category',
       sortable: true,
     },
-    {
-      key: 'is_active',
-      title: 'Status',
-      sortable: true,
-    },
+    // {
+    //   key: 'is_active',
+    //   title: 'Status',
+    //   sortable: true,
+    // },
   ];
 
   const actions = [

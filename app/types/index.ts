@@ -63,4 +63,10 @@ export interface Player {
   phone?: string;
   email?: string;
   joined_date?: string;
+  is_verified?: boolean;
+  gender?: string;
+  type_of_sport?: string;
+  start_date?: string;
+  guardian_first_name?: string;
+  guardian_last_name?: string;
 }
