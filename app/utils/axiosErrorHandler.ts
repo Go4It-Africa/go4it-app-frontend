@@ -9,7 +9,7 @@ const handleErrors = (error: unknown) => {
       return NextResponse.json(
         {
           message:
-            error.response?.data.error.message || 'An unknown error occurred',
+            error.response?.data.error?.message || 'An unknown error occurred',
         },
         { status: error.response?.status || 400 }
       );
