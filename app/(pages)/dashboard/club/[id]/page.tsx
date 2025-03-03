@@ -21,6 +21,7 @@ import { useParams, useRouter } from 'next/navigation';
 import { CreatePlayerModal } from '@/app/components/players/PlayerModal';
 import { useClubStore } from '@/app/store/club';
 import { usePlayerStore } from '@/app/store/player';
+import { timeElapsed } from '@/app/utils/timePassed';
 
 const PlayersTable = () => {
   const { currentClub } = useClubStore();
@@ -132,7 +133,7 @@ const PlayersTable = () => {
 };
 
 const ClubDashboard = () => {
-  const { currentClub, viewClub } = useClubStore();
+  const { currentClub, viewClub, isLoading } = useClubStore();
 
   const params = useParams(); 
   const id = params.id;
@@ -143,15 +144,14 @@ const ClubDashboard = () => {
 
   const club = currentClub;
 
-  const [isLoading, setIsLoading] = useState(true);
+  const { players } = usePlayerStore();
+
+  console.log('The players', players);
+
+  const lastPlayer = players[players.length - 1];
+
   const [isCreatePlayerModalOpen, setIsCreatePlayerModalOpen] =
     useState<boolean>(false);
-
-  useEffect(() => {
-    if (club) {
-      setIsLoading(false);
-    }
-  }, [club]);
 
   if (!club || isLoading) return <Loader />;
 
@@ -202,7 +202,7 @@ const ClubDashboard = () => {
               </div>
               <div>
                 <div className='text-sm text-gray-600'>Total Players</div>
-                <div className='text-2xl font-bold'>{club?.playerCount}</div>
+                <div className='text-2xl font-bold'>{players?.length}</div>
               </div>
             </div>
           </Card>
@@ -278,10 +278,10 @@ const ClubDashboard = () => {
                   <div className='flex-1'>
                     <div className='font-medium'>New Player Added</div>
                     <div className='text-sm text-gray-600'>
-                      John Doe joined the U-17 team
+                      {lastPlayer?.first_name} {lastPlayer?.last_name} joined the {lastPlayer?.name} team
                     </div>
                   </div>
-                  <div className='text-sm text-gray-500'>5h ago</div>
+                  {lastPlayer?.created_at && <div className='text-sm text-gray-500'>{timeElapsed(lastPlayer?.created_at)}</div>}
                 </div>
               </div>
             </div>
