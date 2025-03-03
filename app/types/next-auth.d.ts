@@ -39,6 +39,7 @@ declare module 'next-auth' {
     last_name?: string
     email?: string
     role?: 'club_admin' | 'super_admin' | 'tournament_organizer';
+    expires_at: number;
   }
 }
 

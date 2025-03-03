@@ -1,6 +1,7 @@
 import { NextResponse } from 'next/server';
 import type { NextRequest } from 'next/server';
 import { getToken } from 'next-auth/jwt';
+import { isTokenExpired } from './app/utils/authHelpers';
 
 const AUTH_PAGES = ['/auth/login', '/auth/signup', '/auth/forgot-password'];
 const PUBLIC_PATHS = ['/landing'];
@@ -45,24 +46,9 @@ export async function middleware(request: NextRequest) {
       return NextResponse.next();
     }
 
-    //  // Check token expiration
-    if (
-      token?.exp &&
-      typeof token.exp === 'number' &&
-      Date.now() >= token.exp * 1000
-    ) {
-      // Token expired, force logout
-      const response = NextResponse.redirect(
-        new URL('/auth/login', request.url)
-      );
-      response.cookies.delete('next-auth.session-token');
-      response.cookies.delete('__Secure-next-auth.session-token');
-      return response;
-    }
-
     // For auth pages
     if (AUTH_PAGES.includes(pathname)) {
-      if (token?.role) {
+      if (token?.role && !isTokenExpired(token)) {
         return NextResponse.redirect(
           new URL(
             DEFAULT_ROUTES[token.role as keyof typeof DEFAULT_ROUTES],
@@ -73,8 +59,26 @@ export async function middleware(request: NextRequest) {
       return NextResponse.next();
     }
 
-    // Require authentication for all other routes
-    if (!token) {
+    //  // Check token expiration
+    if (
+      !token || isTokenExpired(token)
+    ) {
+      console.log('Middleware: Token missing or expired', {
+        hasToken: !!token,
+        tokenExpiry: token?.accessTokenExpires ? new Date(token.accessTokenExpires as number).toISOString() : 'none',
+        currentTime: new Date().toISOString()
+      });
+      // Clear session if token is expired
+      if(token && isTokenExpired(token)) {
+        const response = NextResponse.redirect(
+          new URL('/auth/login', request.url)
+        );
+        response.cookies.delete('next-auth.session-token');
+        response.cookies.delete('__Secure-next-auth.session-token');
+        return response;
+      }
+
+      // If token is not present, redirect to login
       const searchParams = new URLSearchParams([['callbackUrl', pathname]]);
       return NextResponse.redirect(
         new URL(`/auth/login?${searchParams}`, request.url)
