@@ -22,13 +22,51 @@ export interface Club {
   playerCount?: number;
 }
 
+export interface Team {
+  id: number;
+  team_name: string;
+  logo: Blob | string | null;
+  club_id: number;
+  club_name: string;
+  category: string;
+  gender: string;
+  category_id: number;
+  category_name: string;
+  tournament_id: number;
+  contact_person: string;
+  contact_person_email: string;
+  contact_person_phone: string;
+  contact_person_address: string;
+}
+
 export interface Tournament {
-  id: string;
-  name: string;
-  status: 'upcoming' | 'ongoing' | 'completed';
-  startDate: string;
-  sport: 'football' | 'athletics' | 'rugby';
-  participantCount: number;
+  id?: number;
+  tournament_name: string;
+  organizer_name: string;
+  organizer_email: string;
+  organizer_phone: string;
+  status?: 'upcoming' | 'ongoing' | 'completed' | 'cancelled' | 'postponed' | 'pending';
+  registration_deadline: string;
+  start_date: string;
+  end_date: string;
+  type_of_sport: 'football' | 'athletics' | 'rugby';
+  type_of_tournament?: 'league' | 'cup' | 'tournament';
+  type_of_participation?: 'girls' | 'boys' | 'mixed';
+  participating_teams?: Team[];
+  logo: Blob | string | null;
+  website_url?: string;
+  x_url?: string;
+  facebook_url?: string;
+  instagram_url?: string;
+  youtube_url?: string;
+  tiktok_url?: string;
+  linkedin_url?: string;
+  city: string;
+  country: string;
+  description?: string;
+  max_teams_per_club: number;
+  is_active?: boolean;
+  total_teams_count: number;
 }
 
 export interface Player {

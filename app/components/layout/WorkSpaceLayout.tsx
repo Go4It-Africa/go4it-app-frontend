@@ -29,7 +29,6 @@ export const Layout = ({
   page,
   noItems = true,
 }: LayoutProps) => {
-  console.log('clubs', page);
 
   return (
     <div className='min-h-screen bg-gray-50 p-6'>
@@ -71,7 +70,7 @@ export const Layout = ({
                 />
                 <input
                   type='text'
-                  placeholder='Search clubs...'
+                  placeholder='Search...'
                   className='w-full pl-10 pr-4 py-2 rounded-lg border border-gray-200 focus:outline-none focus:ring-2 focus:ring-primary'
                 />
               </div>
