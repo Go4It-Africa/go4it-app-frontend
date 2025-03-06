@@ -23,6 +23,9 @@ export async function GET(req: NextRequest, res: NextResponse) {
   //get params from url
   const params = req.nextUrl.searchParams;
   const tournamentId = params.get('id');
+
+  console.log('tournamentId', tournamentId);
+
   if (tournamentId) {
     return handleGetTournamentById(req, res, tournamentId);
   } else {
@@ -65,6 +68,7 @@ const handleGet = async (req: NextRequest, res: NextResponse, user: string) => {
 const handleGetTournamentById = async (req: NextRequest, res: NextResponse, tournamentId: string) => {
   try {
     const response = await serverInstance.get(`/tournaments/${tournamentId}`);
+    console.log('response from get tournament by id', response.data);
     return NextResponse.json(response.data, { status: 200 });
   } catch (error) {
     return handleErrors(error);
