@@ -2,14 +2,12 @@ import { NextAuthOptions } from 'next-auth';
 //import GoogleProvider from 'next-auth/providers/google';
 import CredentialsProvider from 'next-auth/providers/credentials';
 import GoogleProvider from 'next-auth/providers/google';
+import { AxiosError } from 'axios';
 
 import { serverInstance } from '@/app/lib/axios';
 
-
-
 import { env } from '@/app/env.mjs';
 import { refreshToken } from '../utils/authHelpers';
-
 
 export const authOptions: NextAuthOptions = {
   secret: env.NEXTAUTH_SECRET,
@@ -54,10 +52,13 @@ export const authOptions: NextAuthOptions = {
             };
           }
 
-          return null;
+          throw new Error('Login failed. Please check your credentials.');
         } catch (error: unknown) {
           console.log('Authentication error', error);
-          return null;
+          if (error instanceof AxiosError) {
+            throw new Error(error.response?.data?.message || 'Login failed');
+          }
+          throw new Error('Login failed');
         }
       },
     }),
@@ -116,6 +117,11 @@ export const authOptions: NextAuthOptions = {
       });
 
       return session;
+    },
+    async redirect({ url, baseUrl }) {
+      if (url.startsWith('/')) return `${baseUrl}${url}`;
+      else if (url.startsWith(baseUrl)) return url;
+      return baseUrl;
     },
   },
   cookies: {

@@ -1,8 +1,12 @@
+'use client';
 import { useFormik } from 'formik';
-import { signIn } from 'next-auth/react';
+import { signIn, useSession } from 'next-auth/react';
 import Link from 'next/link';
 import * as Yup from 'yup';
 import { toast } from 'react-toastify';
+import { useRouter, useSearchParams } from 'next/navigation';
+import { useEffect, useState } from 'react';
+
 const loginSchema = Yup.object().shape({
   email: Yup.string()
     .email('Must be a valid email')
@@ -12,6 +16,39 @@ const loginSchema = Yup.object().shape({
 });
 
 export const LoginForm = () => {
+  const { data: session } = useSession();
+  const [isMounted, setIsMounted] = useState(false);
+  const router = useRouter();
+  const searchParams = useSearchParams();
+  const [callbackUrl, setCallbackUrl] = useState('');
+
+  useEffect(() => {
+    setIsMounted(true);
+  }, []);
+
+  useEffect(() => {
+    const callback = searchParams.get('callbackUrl');
+    setCallbackUrl(callback || '');
+  }, [searchParams]);
+
+  useEffect(() => {
+    if (!isMounted || !session?.user) return;
+    
+    const role = session.user.role;
+    let redirectPath = '/';
+
+    if (role === 'club_admin') {
+      redirectPath = '/workspace/clubs';
+    } else if (role === 'tournament_organizer') {
+      redirectPath = '/workspace/tournaments';
+    } else if (role === 'super_admin') {
+      redirectPath = '/dashboard';
+    }
+
+    const destination = callbackUrl || redirectPath;
+    router.push(destination);
+  }, [session, router, isMounted, callbackUrl]);
+
   const formik = useFormik({
     initialValues: {
       email: '',
@@ -19,19 +56,34 @@ export const LoginForm = () => {
     },
     validationSchema: loginSchema,
     onSubmit: async (values) => {
-      const result = await signIn('credentials', {
-        redirect: true,
-        email: values.email,
-        password: values.password,
-      });
+      try {
+        const result = await signIn('credentials', {
+          redirect: false,
+          email: values.email,
+          password: values.password,
+          callbackUrl: callbackUrl || undefined,
+        });
 
-      console.log('result in login form', result);
-      if (result?.error) {
-        // Handle error from signIn
-        toast.error(result.error);
+        if (result?.ok) {
+          toast.success('Login successful');
+        }
+
+        if (result?.error) {
+          toast.error(result.error);
+        }
+      } catch (error) {
+        toast.error('An error occurred during login');
+        console.error('Login error:', error);
       }
     },
   });
+
+  const handleGoogleSignIn = () => {
+    signIn('google', { 
+      callbackUrl: callbackUrl || undefined,
+      redirect: true
+    });
+  };
 
   return (
     <div>
@@ -117,7 +169,7 @@ export const LoginForm = () => {
         <div className='mt-4'>
           <button
             type='button'
-            onClick={() => signIn('google')}
+            onClick={handleGoogleSignIn}
             className='w-full border border-gray-300 py-2 px-4 rounded-md flex items-center justify-center'
           >
             Continue with Google

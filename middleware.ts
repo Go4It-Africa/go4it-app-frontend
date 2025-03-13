@@ -32,19 +32,19 @@ export async function middleware(request: NextRequest) {
   try {
     console.log('🚀 Middleware executing for:', request.nextUrl.pathname);
 
+    const { pathname } = request.nextUrl;
+    
+     // Check if the path is public
+     if (PUBLIC_PATHS.some((path) => pathname.startsWith(path))) {
+      return NextResponse.next();
+    }
+
     const token = await getToken({
       req: request,
       secret: process.env.NEXTAUTH_SECRET,
     });
 
     console.log('🔑 Token found:', !!token, 'Role:', token?.role);
-
-    const { pathname } = request.nextUrl;
-
-    // Check if the path is public
-    if (PUBLIC_PATHS.some((path) => pathname.startsWith(path))) {
-      return NextResponse.next();
-    }
 
     // For auth pages
     if (AUTH_PAGES.includes(pathname)) {
@@ -78,10 +78,18 @@ export async function middleware(request: NextRequest) {
         return response;
       }
 
-      // If token is not present, redirect to login
-      const searchParams = new URLSearchParams([['callbackUrl', pathname]]);
+     // If token is not present, redirect to login with callback
+      // Include full URL with query parameters for more accurate redirection
+      const fullUrl = request.nextUrl.pathname + request.nextUrl.search;
+      const callbackUrl = encodeURIComponent(fullUrl);
+      
+      // Don't redirect to login page if we're already on it
+      if (pathname.startsWith('/auth/login')) {
+        return NextResponse.next();
+      }
+      
       return NextResponse.redirect(
-        new URL(`/auth/login?${searchParams}`, request.url)
+        new URL(`/auth/login?callbackUrl=${callbackUrl}`, request.url)
       );
     }
 
@@ -110,5 +118,7 @@ export async function middleware(request: NextRequest) {
 }
 
 export const config = {
-  matcher: ['/((?!api|_next/static|_next/image|favicon.ico|images|logos).*)'],
+  matcher: [
+    '/((?!api|_next/static|_next/image|favicon.ico|images|logos).*)',
+  ],
 };
