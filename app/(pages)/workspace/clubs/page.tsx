@@ -18,6 +18,7 @@ export default function ClubsWorkspacePage() {
   useEffect(() => {
     fetchClubs();
   }, [fetchClubs]);
+  console.log('the clubs', clubs);
 
   const processedClubs = useMemo(() => {
     if(!isLoading && !error) {

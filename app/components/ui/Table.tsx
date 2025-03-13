@@ -2,6 +2,7 @@ import React, { useState, useMemo } from 'react';
 import Card from '@/app/components/ui/Card';
 import { Search, ArrowUpDown, MoreHorizontal } from 'lucide-react';
 import { Dropdown } from '@/app/components/ui/Dropdown';
+import { capitalize } from '@/app/utils/capitalize';
 
 export interface Column<T> {
   key: keyof T;
@@ -178,7 +179,7 @@ export function DataTable<T extends { id: string | number }>({
                     <td key={index} className="px-4 py-3 whitespace-nowrap">
                       {column.render 
                         ? column.render(item[column.key], item)
-                        : String(item[column.key])
+                        : capitalize(String(item[column.key]))
                       }
                     </td>
                   ))}

@@ -15,13 +15,14 @@ import Image from 'next/image';
 import { UserDropdown } from '@/app/components/UserDropdown';
 import { SeasonSelector } from '@/app/components/clubs/ClubSeasonSelector';
 import { Column, DataTable } from '@/app/components/ui/Table';
-import { Player } from '@/app/types';
+import { Player, Tournament } from '@/app/types';
 import Loader from '@/app/components/Loader';
 import { useParams, useRouter } from 'next/navigation';
 import { CreatePlayerModal } from '@/app/components/players/PlayerModal';
 import { useClubStore } from '@/app/store/club';
 import { usePlayerStore } from '@/app/store/player';
 import { timeElapsed } from '@/app/utils/timePassed';
+import { useTournamentStore } from '@/app/store/tournament';
 
 const PlayersTable = () => {
   const { currentClub } = useClubStore();
@@ -132,21 +133,96 @@ const PlayersTable = () => {
   );
 };
 
+const TournamentTable = ({ tournaments }: { tournaments: Tournament[] }) => {
+  const router = useRouter();
+
+  const columns: Column<Partial<Tournament>>[] = [
+    {
+      key: 'tournament_name',
+      title: 'Tournament Name',
+      width: '60px',
+    },
+    {
+      key: 'city',
+      title: 'City',
+      sortable: true,
+    },
+    {
+      key: 'country',
+      title: 'Country',
+      sortable: true,
+    },
+    {
+      key: 'type_of_tournament',
+      title: 'Type',
+      sortable: true,
+    },
+    {
+      key: 'registration_deadline',
+      title: 'Registration Deadline',
+      sortable: true,
+      render: (value: string | unknown) =>
+        new Date((value as string) || '').toLocaleDateString(),
+    },
+    {
+      key: 'status',
+      title: 'Status',
+      render: (value: string | unknown) => (value as string) || 'Pending',
+      sortable: false,
+    },
+  ];
+
+  const actions = [
+    {
+      label: 'View Details',
+      onClick: (tournament: Tournament) => {
+        router.push(`/dashboard/tournament/${tournament.id}`);
+      },
+    }
+  ];
+
+  if (tournaments && !tournaments.length)
+    return (
+      <div className='mt-8'>
+        <h2 className='text-lg font-bold'>No tournaments found</h2>
+      </div>
+    );
+
+  return (
+    <DataTable
+      data={tournaments} // Your player data here
+      columns={columns}
+      actions={actions}
+      title='Tournaments'
+      loading={false}
+      searchPlaceholder='Search tournaments...'
+      onSearch={(term) => console.log('Search:', term)}
+      className='mt-8'
+    />
+  );
+};
+
 const ClubDashboard = () => {
   const { currentClub, viewClub, isLoading } = useClubStore();
+  const { fetchTournaments, registeredTournaments, getRegisteredTournamentsByClubId } = useTournamentStore();
+  const router = useRouter();
 
   const params = useParams(); 
   const id = params.id;
 
   useEffect(() => {
     viewClub(Number(id));
-  }, [id, viewClub]);
+    fetchTournaments();
+    getRegisteredTournamentsByClubId(Number(id));
+  }, [id, viewClub, fetchTournaments, getRegisteredTournamentsByClubId]);
 
   const club = currentClub;
 
   const { players } = usePlayerStore();
 
   console.log('The players', players);
+
+  console.log('The Regosterd tournaments', registeredTournaments);
 
   const lastPlayer = players[players.length - 1];
 
@@ -213,8 +289,8 @@ const ClubDashboard = () => {
                 <Trophy className='w-6 h-6 text-green-600' />
               </div>
               <div>
-                <div className='text-sm text-gray-600'>Active Tournaments</div>
-                <div className='text-2xl font-bold'>3</div>
+                <div className='text-sm text-gray-600'>{registeredTournaments?.length > 1 ? 'Registered Tournaments' : 'Registered Tournament'} </div>
+                <div className='text-2xl font-bold'>{registeredTournaments?.length}</div>
               </div>
             </div>
           </Card>
@@ -263,12 +339,12 @@ const ClubDashboard = () => {
                     <Trophy className='w-5 h-5 text-primary' />
                   </div>
                   <div className='flex-1'>
-                    <div className='font-medium'>Tournament Registration</div>
+                    <div className='font-medium'>Recent Registered Tournament</div>
                     <div className='text-sm text-gray-600'>
-                      Registered for East Africa Youth Cup 2024
+                      {registeredTournaments?.[registeredTournaments.length - 1]?.tournament_name} - {registeredTournaments?.[registeredTournaments.length - 1]?.city}, {registeredTournaments?.[registeredTournaments.length - 1]?.country}
                     </div>
                   </div>
-                  <div className='text-sm text-gray-500'>2h ago</div>
+                  {registeredTournaments?.[registeredTournaments.length - 1]?.created_at && <div className='text-sm text-gray-500'>{timeElapsed(registeredTournaments?.[registeredTournaments.length - 1]?.created_at as string)}</div>}
                 </div>
 
                 <div className='flex items-center gap-4 p-4 bg-gray-50 rounded-lg'>
@@ -299,7 +375,7 @@ const ClubDashboard = () => {
                   <Users size={20} />
                   Add New Player
                 </button>
-                <button className='w-full bg-white border border-gray-200 text-gray-700 px-4 py-2 rounded-lg flex items-center justify-center gap-2 hover:bg-gray-50'>
+                <button onClick={() => router.push(`/dashboard/tournaments`)} className='w-full bg-white border border-gray-200 text-gray-700 px-4 py-2 rounded-lg flex items-center justify-center gap-2 hover:bg-gray-50'>
                   <Trophy size={20} />
                   View Tournaments
                 </button>
@@ -313,6 +389,8 @@ const ClubDashboard = () => {
         </div>
 
         {club && <PlayersTable />}
+
+        {club && registeredTournaments.length > 0 && <TournamentTable tournaments={registeredTournaments} />}
       </div>
       <CreatePlayerModal
         isOpen={isCreatePlayerModalOpen}

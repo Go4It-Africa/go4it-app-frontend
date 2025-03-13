@@ -4,6 +4,7 @@ import axios from 'axios';
 
 export type PlayerState = {
     players: Player[];
+    tournamentTeamPlayers: Player[];
     currentPlayer: Player | null;
     isLoading: boolean;
     error: string | null;
@@ -15,10 +16,12 @@ export type PlayerActions = {
     addPlayer: (player: Player) => void;
     updatePlayer: (playerId: number, playerData: Partial<Player>) => void;
     deletePlayer: (playerId: number) => void;
+    viewTournamentTeamPlayers: (tournamentId: number, teamId: number) => void;
 }
 
 export const usePlayerStore = create<PlayerState & PlayerActions>((set) => ({
   players: [],
+  tournamentTeamPlayers: [],
   currentPlayer: null,
   isLoading: false,
   error: null,
@@ -80,6 +83,22 @@ export const usePlayerStore = create<PlayerState & PlayerActions>((set) => ({
         set({
             isLoading: false,
             error: error instanceof Error ? error.message : 'Failed to delete player',
+        });
+    }
+  },
+  viewTournamentTeamPlayers: async (tournamentId: number, clubId: number) => {
+    set({ isLoading: true, error: null });
+    try {
+      const data = {
+        tournamentId,
+        clubId
+      }
+      const response = await axios.get(`/api/players/tournament-team`, { params: data });
+      set({ tournamentTeamPlayers: response.data.data, isLoading: false });
+    } catch(error) {
+        set({
+            isLoading: false,
+            error: error instanceof Error ? error.message : 'Failed to view tournament team players',
         });
     }
   }

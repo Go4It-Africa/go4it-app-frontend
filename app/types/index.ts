@@ -25,10 +25,14 @@ export interface Club {
 export interface Team {
   id: number;
   team_name: string;
+  name: string;
   logo: Blob | string | null;
   club_id: number;
   club_name: string;
-  category: string;
+  category: {
+    id: number;
+    name: string;
+  } | string;
   gender: string;
   category_id: number;
   category_name: string;
@@ -39,8 +43,18 @@ export interface Team {
   contact_person_address: string;
 }
 
+export interface Category {
+  category_id: number;
+  category_name: string;
+  fee: number;
+  gender: 'boys' | 'girls' | 'mixed';
+  slots_available: number;
+  created_at?: string;
+  updated_at?: string;
+}
+
 export interface Tournament {
-  id?: number;
+  id: number;
   tournament_name: string;
   organizer_name: string;
   organizer_email: string;
@@ -67,6 +81,9 @@ export interface Tournament {
   max_teams_per_club: number;
   is_active?: boolean;
   total_teams_count: number;
+  created_at?: string;
+  categories: Category[];
+  teams: Team[];
 }
 
 export interface Player {
