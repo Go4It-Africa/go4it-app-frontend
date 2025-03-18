@@ -3,7 +3,7 @@ import { serverInstance } from '@/app/lib/axios';
 import checkSessionValidity from '@/app/utils/useCheckSessionValidity';
 import handleErrors from '@/app/utils/axiosErrorHandler';
 
-export async function GET(req: NextRequest, res: NextResponse) {
+export async function GET(req: NextRequest) {
   const sessionData = await checkSessionValidity();
 
   if ('error' in sessionData) {
@@ -13,11 +13,11 @@ export async function GET(req: NextRequest, res: NextResponse) {
   const tournamentId = req.nextUrl.searchParams.get('tournament_id');
   const clubId = req.nextUrl.searchParams.get('club_id');
 
-  return handleGet(req, res, tournamentId, clubId);
+  return handleGet(req, tournamentId, clubId);
 }
 
 
-const handleGet = async (req: NextRequest, res: NextResponse, tournamentId: string | null, clubId: string | null) => {
+const handleGet = async (req: NextRequest, tournamentId: string | null, clubId: string | null) => {
   try {
     if (!tournamentId || !clubId) {
       //TODO: Unless we want to get all players

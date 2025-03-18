@@ -13,7 +13,7 @@ export async function POST(req: NextRequest) {
   return handlePost(req);
 }
 
-export async function GET(req: NextRequest, res: NextResponse) {
+export async function GET(req: NextRequest) {
   const sessionData = await checkSessionValidity();
 
   if ('error' in sessionData) {
@@ -28,7 +28,7 @@ export async function GET(req: NextRequest, res: NextResponse) {
     return NextResponse.json({ error: 'Club ID is required' }, { status: 400 });
   }
 
-  return handleGetRegisteredTournamentsByClubId(req, res, Number(clubId));
+  return handleGetRegisteredTournamentsByClubId(req, Number(clubId));
 }
 
 const handlePost = async (
@@ -58,7 +58,7 @@ const handlePost = async (
   }
 };
 
-const handleGetRegisteredTournamentsByClubId = async (req: NextRequest, res: NextResponse, clubId: number) => {
+const handleGetRegisteredTournamentsByClubId = async (req: NextRequest, clubId: number) => {
   try {
     const response = await serverInstance.get(`/clubs/${clubId}/tournaments/registered`);
     console.log('response from get tournament by id', response.data);

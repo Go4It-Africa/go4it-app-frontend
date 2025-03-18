@@ -4,17 +4,17 @@ import { Session } from 'next-auth';
 import checkSessionValidity from '@/app/utils/useCheckSessionValidity';
 import handleErrors from '@/app/utils/axiosErrorHandler';
 
-export async function POST(req: NextRequest, res: NextResponse) {
+export async function POST(req: NextRequest) {
   const sessionData = await checkSessionValidity();
 
   if ('error' in sessionData) {
     return NextResponse.json({ error: sessionData.error }, { status: 401 });
   }
 
-  return handlePost(req, res, sessionData.session);
+  return handlePost(req, sessionData.session);
 }
 
-export async function GET(req: NextRequest, res: NextResponse) {
+export async function GET(req: NextRequest) {
   const sessionData = await checkSessionValidity();
 
   if ('error' in sessionData) {
@@ -24,17 +24,16 @@ export async function GET(req: NextRequest, res: NextResponse) {
   const params = req.nextUrl.searchParams;
   const playerId = params.get('id');
   if (playerId) {
-    return handleGetPlayerById(req, res, playerId);
+    return handleGetPlayerById(req, playerId);
   }
 
   const clubId = req.nextUrl.searchParams.get('club_id');
 
-  return handleGet(req, res, clubId);
+  return handleGet(req, clubId);
 }
 
 const handlePost = async (
   req: NextRequest,
-  res: NextResponse,
   session: Session
 ) => {
   try {
@@ -52,7 +51,7 @@ const handlePost = async (
   }
 };
 
-const handleGet = async (req: NextRequest, res: NextResponse, club: string | null) => {
+const handleGet = async (req: NextRequest, club: string | null) => {
   try {
     if (!club) {
       //TODO: Unless we want to get all players
@@ -66,7 +65,7 @@ const handleGet = async (req: NextRequest, res: NextResponse, club: string | nul
   }
 };
 
-const handleGetPlayerById = async (req: NextRequest, res: NextResponse, playerId: string) => {
+const handleGetPlayerById = async (req: NextRequest, playerId: string) => {
   try {
     const response = await serverInstance.get(`/players/${playerId}`);
     return NextResponse.json(response.data, { status: 200 });
