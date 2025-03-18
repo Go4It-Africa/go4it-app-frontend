@@ -7,6 +7,7 @@ import { Menu, X, Home, Users, Calendar, Trophy, Settings } from 'lucide-react';
 import Loader from '../Loader';
 import { useClubStore } from '@/app/store/club';
 import { useParams } from 'next/navigation';
+import DashboardNavbarWithoutSidebar from '../navbars/navbar';
 interface NavItem {
   label: string;
   href: string;
@@ -140,7 +141,9 @@ export const DashboardLayout = ({ children }: DashboardLayoutProps) => {
       </>
       )
     }
+
     <main className="p-6">
+      <DashboardNavbarWithoutSidebar club={currentClub} />
       {children}
     </main>
       

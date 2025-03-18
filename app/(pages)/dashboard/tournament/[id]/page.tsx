@@ -15,8 +15,6 @@ import {
 } from 'lucide-react';
 import Image from 'next/image';
 
-import { UserDropdown } from '@/app/components/UserDropdown';
-import { SeasonSelector } from '@/app/components/clubs/ClubSeasonSelector';
 import { Column, DataTable } from '@/app/components/ui/Table';
 import { Player, Team } from '@/app/types';
 import Loader from '@/app/components/Loader';
@@ -24,7 +22,6 @@ import { useParams, useRouter } from 'next/navigation';
 import { useTournamentStore } from '@/app/store/tournament';
 import { useSession } from 'next-auth/react';
 import { useClubStore } from '@/app/store/club';
-import { DateTime } from 'luxon';
 import { timeElapsed } from '@/app/utils/timePassed';
 import { capitalize } from '@/app/utils/capitalize';
 import { AssignPlayerModal } from '@/app/components/players/AssignPlayerModal';
@@ -469,31 +466,6 @@ const TournamentPage = () => {
 
   return (
     <div className='min-h-screen bg-gray-50'>
-      {/* Top Header */}
-      <div className='bg-white border-b'>
-        <div className='max-w-7xl mx-auto px-6 py-4'>
-          <div className='flex items-center justify-between'>
-            <div className='flex items-center gap-4'>
-              <div className='w-12 h-12 bg-primary/10 rounded-full flex items-center justify-center'>
-                <Trophy className='w-6 h-6 text-primary' />
-              </div>
-              <div>
-                <h1 className='text-xl font-bold'>{tournament?.tournament_name}</h1>
-                <div className='flex items-center gap-2 text-sm text-gray-600'>
-                  <span>{`${tournament?.city}, ${tournament?.country}`}</span>
-                  <span>•</span>
-                  <span>{`${DateTime.fromISO(tournament?.start_date).toLocaleString(DateTime.DATE_MED)} - ${DateTime.fromISO(tournament?.end_date).toLocaleString(DateTime.DATE_MED)}`}</span>
-                </div>
-              </div>
-            </div>
-
-            {sessionRole === 'tournament_organizer' && <SeasonSelector />}
-
-            <UserDropdown />
-          </div>
-        </div>
-      </div>
-
       {/* Main Content */}
       <div className='max-w-7xl mx-auto px-6 py-8'>
         {/* Stats Overview */}
