@@ -79,7 +79,7 @@ export const RegisterTournamentModal = ({ isOpen, onClose, currentTournament }: 
             };
             console.log('THE TOURNAMENT DATA', tournamentData);
 
-            await registerTournament(tournamentData as Partial<Tournament>);
+            await registerTournament(tournamentData as unknown as Partial<Tournament>);
             
             if(!isLoading && !error) {
               setTimeout(() => {

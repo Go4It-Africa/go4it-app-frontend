@@ -74,7 +74,7 @@ export const CreateTournamentModal = ({ isOpen, onClose }: CreateTournamentModal
     onSubmit: async (values) => {
       try {
         // Handle tournament creation API call here
-        await addTournament(values as Tournament);
+        await addTournament(values as unknown as Tournament);
         
         if(!isLoading) {
           setTimeout(() => {

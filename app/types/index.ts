@@ -22,6 +22,11 @@ export interface Club {
   playerCount?: number;
 }
 
+export interface Category {
+  id: number;
+  name: string;
+}
+
 export interface Team {
   id: number;
   team_name: string;
@@ -32,7 +37,7 @@ export interface Team {
   category: {
     id: number;
     name: string;
-  } | string;
+  } | string | Category;
   gender: string;
   category_id: number;
   category_name: string;
@@ -124,4 +129,5 @@ export interface Player {
   start_date?: string;
   guardian_first_name?: string;
   guardian_last_name?: string;
+  status?: string;
 }

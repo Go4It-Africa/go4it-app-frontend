@@ -136,7 +136,7 @@ export const AssignPlayerModal = ({
                         onClick={() => setSelectedTeam(team)}
                         className='w-full px-4 py-2 text-left hover:bg-gray-100 flex items-center justify-between'
                     >
-                        <span>{team.name} - {team.category.name} - {team.gender}</span>
+                        <span>{team.name} - {team.category_name} - {team.gender}</span>
                         {selectedTeam?.id === team.id && (
                         <Check className='w-4 h-4 text-primary' />
                         )}
