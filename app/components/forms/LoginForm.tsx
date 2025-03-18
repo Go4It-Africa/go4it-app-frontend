@@ -78,12 +78,12 @@ export const LoginForm = () => {
     },
   });
 
-  const handleGoogleSignIn = () => {
-    signIn('google', { 
-      callbackUrl: callbackUrl || undefined,
-      redirect: true
-    });
-  };
+  // const handleGoogleSignIn = () => {
+  //   signIn('google', { 
+  //     callbackUrl: callbackUrl || undefined,
+  //     redirect: true
+  //   });
+  // };
 
   return (
     <div>
@@ -159,14 +159,14 @@ export const LoginForm = () => {
             Create Account
           </Link>
         </div>
-
+        {/*
         <div className='flex items-center justify-center gap-2'>
           <div className='w-full border-t border-gray-300'></div>
           <p className='text-sm font-bold text-black'>OR</p>
           <div className='w-full border-t border-gray-300'></div>
         </div>
 
-        <div className='mt-4'>
+         <div className='mt-4'>
           <button
             type='button'
             onClick={handleGoogleSignIn}
@@ -174,7 +174,7 @@ export const LoginForm = () => {
           >
             Continue with Google
           </button>
-        </div>
+        </div> */}
       </form>
     </div>
   );

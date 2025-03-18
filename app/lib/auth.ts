@@ -1,7 +1,7 @@
 import { NextAuthOptions } from 'next-auth';
 //import GoogleProvider from 'next-auth/providers/google';
 import CredentialsProvider from 'next-auth/providers/credentials';
-import GoogleProvider from 'next-auth/providers/google';
+// import GoogleProvider from 'next-auth/providers/google';
 import { AxiosError } from 'axios';
 
 import { serverInstance } from '@/app/lib/axios';
@@ -12,10 +12,10 @@ import { refreshToken } from '../utils/authHelpers';
 export const authOptions: NextAuthOptions = {
   secret: env.NEXTAUTH_SECRET,
   providers: [
-    GoogleProvider({
-      clientId: env.AUTH_GOOGLE_CLIENT_ID,
-      clientSecret: env.AUTH_GOOGLE_CLIENT_SECRET,
-    }),
+    // GoogleProvider({
+    //   clientId: env.AUTH_GOOGLE_CLIENT_ID,
+    //   clientSecret: env.AUTH_GOOGLE_CLIENT_SECRET,
+    // }),
     CredentialsProvider({
       name: 'Credentials',
       credentials: {
