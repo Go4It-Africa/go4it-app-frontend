@@ -30,7 +30,7 @@ const DEFAULT_ROUTES = {
 
 export async function middleware(request: NextRequest) {
   try {
-    console.log('🚀 Middleware executing for:', request.nextUrl.pathname);
+    // console.log('🚀 Middleware executing for:', request.nextUrl.pathname);
 
     const { pathname } = request.nextUrl;
     
@@ -44,7 +44,7 @@ export async function middleware(request: NextRequest) {
       secret: process.env.NEXTAUTH_SECRET,
     });
 
-    console.log('🔑 Token found:', !!token, 'Role:', token?.role);
+    //console.log('🔑 Token found:', !!token, 'Role:', token?.role);
 
     // For auth pages
     if (AUTH_PAGES.includes(pathname)) {
@@ -63,11 +63,11 @@ export async function middleware(request: NextRequest) {
     if (
       !token || isTokenExpired(token)
     ) {
-      console.log('Middleware: Token missing or expired', {
-        hasToken: !!token,
-        tokenExpiry: token?.accessTokenExpires ? new Date(token.accessTokenExpires as number).toISOString() : 'none',
-        currentTime: new Date().toISOString()
-      });
+      // console.log('Middleware: Token missing or expired', {
+      //   hasToken: !!token,
+      //   tokenExpiry: token?.accessTokenExpires ? new Date(token.accessTokenExpires as number).toISOString() : 'none',
+      //   currentTime: new Date().toISOString()
+      // });
       // Clear session if token is expired
       if(token && isTokenExpired(token)) {
         const response = NextResponse.redirect(

@@ -46,12 +46,9 @@ serverInstance.interceptors.request.use(
     if (!config.url?.startsWith('http')) {
       config.url = `${config.baseURL}${config.url}`;
     }
-    //console.log('config', config);
-
     return config;
   },
   (error) => {
-    console.log('error in server axios interceptor', error);
     return Promise.reject(error);
   }
 );
@@ -79,7 +76,6 @@ serverInstance.interceptors.response.use(
         // });
         originalRequest.headers = originalRequest.headers || {};
         const token = originalRequest?.headers['Authorization']?.split(' ')[1];
-        console.log('token', token);
         const response = await refreshToken(token);
         if(!response.ok) {
           // If refresh fails, force sign out
@@ -94,7 +90,6 @@ serverInstance.interceptors.response.use(
           return serverInstance(originalRequest);
         }
       } catch (error) {
-        console.log('Failed to refresh token', error);
         await signOut({ callbackUrl: '/auth/login' });
         return Promise.reject(error);
       }

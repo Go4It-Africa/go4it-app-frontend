@@ -32,7 +32,6 @@ export const useTournamentStore = create<TournamentState & TournamentActions>((s
     //const currentClub = get().clubs.find((c) => c.id === clubId);
     try {
         const currentTournament = await axios.get(`/api/tournaments?id=${tournamentId}`);
-        console.log('currentTournament store', currentTournament.data);
         set({ currentTournament: currentTournament.data, isLoading: false })
     } catch (error) {
         set({ isLoading: false, error: `Failed to fetch tournament: ${error instanceof Error ? error.message : 'Unknown error'}` });
@@ -92,7 +91,6 @@ export const useTournamentStore = create<TournamentState & TournamentActions>((s
     set({ isLoading: true, error: null });
     try {
       const response = await axios.get(`/api/tournaments/registered?clubId=${clubId}`);
-      console.log('response from get registered tournaments by club id', response.data);
       set({ registeredTournaments: response.data.data, isLoading: false });
     } catch(error) {
         set({

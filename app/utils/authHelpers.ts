@@ -3,9 +3,6 @@ import { env } from "@/app/env.mjs";
 
 export async function refreshToken(token: JWT): Promise<JWT> {
     try {
-    console.log('Refreshing token with refreshToken:', token.refreshToken?.substring(0, 10) + '...');
-    
-
       const response = await fetch(`${env.API_URL}/auth/token-refresh`, {
         method: 'POST',
         headers: {
@@ -23,8 +20,6 @@ export async function refreshToken(token: JWT): Promise<JWT> {
         };
       }
       const refreshedTokens = await response.json();
-      console.log('Token refreshed successfully, new expiry:', refreshedTokens.expiresIn, 'seconds');
-
       return {
         ...token,
         accessToken: refreshedTokens.accessToken,
@@ -32,10 +27,9 @@ export async function refreshToken(token: JWT): Promise<JWT> {
         refreshToken: refreshedTokens.refreshToken ?? token.refreshToken,
       };
     } catch (error) {
-      console.log('Token refresh error:', error);
       return {
         ...token,
-        error: 'RefreshAccessTokenError',
+        error: 'RefreshAccessTokenError' + error,
         accessToken: undefined,
         accessTokenExpires: undefined,
       };
@@ -49,10 +43,10 @@ export async function refreshToken(token: JWT): Promise<JWT> {
   const isExpired = Date.now() >= (token.accessTokenExpires as number);
   
   if (isExpired) {
-    console.log('Token is expired:', {
-      now: new Date().toISOString(),
-      expires: new Date(token.accessTokenExpires as number).toISOString()
-    });
+    // console.log('Token is expired:', {
+    //   now: new Date().toISOString(),
+    //   expires: new Date(token.accessTokenExpires as number).toISOString()
+    // });
   }
   
   return isExpired;

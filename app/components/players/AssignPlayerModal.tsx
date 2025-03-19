@@ -34,8 +34,6 @@ export const AssignPlayerModal = ({
   const { players, fetchPlayers } = usePlayerStore();
   const { assignPlayersToTeam} = useTournamentStore();
 
-  console.log('THE PLAYERS', players);
-
   players.map(player => {
     player.category = player.name as string;
   });
@@ -59,7 +57,6 @@ export const AssignPlayerModal = ({
     
     try {
       // TODO: Implement the API call to assign players to team
-      console.log('Assigning players:', selectedPlayers, 'to team:', selectedTeam.id);
       assignPlayersToTeam(selectedPlayers, selectedTeam.id, tournamentId);
       //onClose();
     } catch (error) {
@@ -130,7 +127,6 @@ export const AssignPlayerModal = ({
                     className='w-full'
                 >
                     {teams.map((team) => (
-                        console.log('THE TEAM NOW:', team),
                     <button
                         key={team.id}
                         onClick={() => setSelectedTeam(team)}

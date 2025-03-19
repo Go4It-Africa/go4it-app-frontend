@@ -43,8 +43,6 @@ export const RegisterTournamentModal = ({ isOpen, onClose, currentTournament }: 
     }
   }, [currentClub?.id, router]);
 
-  console.log('THE CURRENT TOURNAMENT', currentTournament);
-
   const initialValues: TeamFormValues = {
     teams: [{
       team_name: '',
@@ -71,13 +69,11 @@ export const RegisterTournamentModal = ({ isOpen, onClose, currentTournament }: 
         validationSchema={toFormikValidationSchema(registerTournamentSchema)}
         onSubmit={async (values, { resetForm }) => {
           try {
-            console.log('THE CURRENT TOURNAMENT VALUES', values);
             const tournamentData = {
               ...values,
               club_id: currentClub?.id,
               tournament_id: currentTournament.id,
             };
-            console.log('THE TOURNAMENT DATA', tournamentData);
 
             await registerTournament(tournamentData as unknown as Partial<Tournament>);
             

@@ -203,8 +203,6 @@ const PlayersTable = ( { tournamentId, clubId }: { tournamentId: number, clubId:
   const router = useRouter();
   const players = tournamentTeamPlayers;
 
-  console.log('the players tournament team', players);
-
   const columns: Column<Player>[] = [
     {
       key: 'photo',
@@ -379,8 +377,6 @@ const TournamentPage = () => {
   const params = useParams();
   const id = params.id;
 
-  console.log('the id in params', currentClub?.id);
-
   useEffect(() => {
     if (sessionRole === 'tournament_organizer') {
       viewTournament(Number(id));
@@ -391,8 +387,6 @@ const TournamentPage = () => {
   }, [id, viewTournament, sessionRole, getRegisteredTournamentsByClubId, currentClub]);
 
   const tournament = session?.user?.role === 'tournament_organizer' ? currentTournament : registeredTournaments[0];
-
-  console.log('the current tournament', registeredTournaments);
 
   // Mock data for demonstration
   const registrations = [

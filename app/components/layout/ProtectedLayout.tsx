@@ -25,7 +25,5 @@ export const ProtectedLayout = ({ children, allowedRoles }: ProtectedLayoutProps
     return null;
   }
 
-  console.log('session', session);
-
   return <>{children}</>;
 };

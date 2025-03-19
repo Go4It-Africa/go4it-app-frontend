@@ -19,8 +19,6 @@ const handlePost = async (
   try {
     const data = await req.json();
 
-    console.log('assign players to team data', data);
-
     const response = await serverInstance.post(`/tournaments/${data?.tournamentId}/team/${data?.teamId}`, {
       players: data?.players,
     });

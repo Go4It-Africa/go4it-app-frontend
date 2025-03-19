@@ -23,7 +23,6 @@ export async function GET(req: NextRequest) {
   const params = req.nextUrl.searchParams;
   const clubId = params.get('clubId');
 
-  console.log('clubId', clubId);
   if (!clubId) {
     return NextResponse.json({ error: 'Club ID is required' }, { status: 400 });
   }
@@ -36,8 +35,6 @@ const handlePost = async (
 ) => {
   try {
     const tournamentData = await req.json();
-
-    console.log('tournamentData in route', tournamentData);
 
     if(!tournamentData?.tournament_id || !tournamentData?.club_id || !tournamentData?.teams) {
       return NextResponse.json({ error: 'Missing required fields' }, { status: 400 });
@@ -61,7 +58,6 @@ const handlePost = async (
 const handleGetRegisteredTournamentsByClubId = async (req: NextRequest, clubId: number) => {
   try {
     const response = await serverInstance.get(`/clubs/${clubId}/tournaments/registered`);
-    console.log('response from get tournament by id', response.data);
     return NextResponse.json(response.data, { status: 200 });
   } catch (error) {
     return handleErrors(error);

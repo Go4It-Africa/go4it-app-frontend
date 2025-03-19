@@ -37,7 +37,6 @@ export const authOptions: NextAuthOptions = {
           );
 
           if (response.status === 200 && response.data) {
-            console.log('Authentication successful', response.data);
             return {
               id: response.data.user.id,
               email: response.data.user.email,
@@ -54,7 +53,6 @@ export const authOptions: NextAuthOptions = {
 
           throw new Error('Login failed. Please check your credentials.');
         } catch (error: unknown) {
-          console.log('Authentication error', error);
           if (error instanceof AxiosError) {
             throw new Error(error.response?.data?.message || 'Login failed');
           }
@@ -93,7 +91,6 @@ export const authOptions: NextAuthOptions = {
         return token;
       }
       // Token expired, refresh it
-      console.log('Token expired, attempting refresh');
       return await refreshToken(token);
     },
     async session({ session, token }) {
@@ -110,11 +107,6 @@ export const authOptions: NextAuthOptions = {
         session.provider = token.provider;
         session.error = token.error;
       }
-
-      console.log('Session after modification:', {
-        ...session,
-        accessToken: '***',
-      });
 
       return session;
     },
@@ -150,7 +142,7 @@ export const authOptions: NextAuthOptions = {
   events: {
     signOut: async ({ session, token }) => {
       // Perform any cleanup like invalidating tokens on your backend
-      console.log('signOut', session, token);
+      console.log('signOut', session);
       try {
         await fetch(`${env.API_URL}/auth/logout`, {
           method: 'POST',
@@ -171,8 +163,8 @@ export const authOptions: NextAuthOptions = {
     warn(code) {
       console.warn('NextAuth Warning:', code);
     },
-    debug(code, metadata) {
-      console.log('NextAuth Debug:', { code, metadata });
+    debug(/* code, metadata */) {
+      //console.log('NextAuth Debug:', { code, metadata });
     },
   },
 };

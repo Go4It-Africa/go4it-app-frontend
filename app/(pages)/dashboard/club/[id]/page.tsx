@@ -218,10 +218,6 @@ const ClubDashboard = () => {
 
   const { players } = usePlayerStore();
 
-  console.log('The players', players);
-
-  console.log('The Regosterd tournaments', registeredTournaments);
-
   const lastPlayer = players[players.length - 1];
 
   const [isCreatePlayerModalOpen, setIsCreatePlayerModalOpen] =
