@@ -1,5 +1,5 @@
 import { useFormik } from 'formik';
-import { signIn } from 'next-auth/react';
+//import { signIn } from 'next-auth/react';
 import Link from 'next/link';
 import * as Yup from 'yup';
 import { toast } from 'react-toastify';
@@ -218,7 +218,7 @@ export const SignupForm = () => {
           </Link>
         </div>
 
-        <div className='flex items-center justify-center gap-2'>
+        {/* <div className='flex items-center justify-center gap-2'>
           <div className='w-full border-t border-gray-300'></div>
           <p className='text-sm font-bold text-black'>OR</p>
           <div className='w-full border-t border-gray-300'></div>
@@ -232,7 +232,7 @@ export const SignupForm = () => {
           >
             Continue with Google
           </button>
-        </div>
+        </div> */}
       </form>
     </div>
   );
