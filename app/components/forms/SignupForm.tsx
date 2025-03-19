@@ -4,7 +4,7 @@ import Link from 'next/link';
 import * as Yup from 'yup';
 import { toast } from 'react-toastify';
 import { useRouter } from 'next/navigation';
-const loginSchema = Yup.object().shape({
+const signupSchema = Yup.object().shape({
   email: Yup.string()
     .email('Must be a valid email')
     .max(255)
@@ -30,7 +30,7 @@ export const SignupForm = () => {
       role: '',
       confirm_password: '',
     },
-    validationSchema: loginSchema,
+    validationSchema: signupSchema,
     onSubmit: async (values) => {
       const userData = {
         email: values.email,
@@ -146,7 +146,7 @@ export const SignupForm = () => {
           >
             <option value=''>Select a role</option>
             <option value='club_admin'>Club Administrator</option>
-            <option value='tournament_organizer'>Tournament Organizer</option>
+            {/* <option value='tournament_organizer'>Tournament Organizer</option> */}
           </select>
           {formik.touched.role && formik.errors.role && (
             <div className='text-red-500 text-sm'>{formik.errors.role}</div>
