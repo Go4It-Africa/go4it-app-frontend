@@ -58,27 +58,13 @@ export default function ClubsWorkspacePage() {
 
   if (!clubs.length) {
     return (
-      <Layout
-        title='Select Workspace'
-        description='Choose a club to manage or create a new one'
-        buttonText='Create New Club'
-        page='clubs'
-        noItems={true}
-        buttonAction={() => {
-          setIsCreateModalOpen(true);
-        }}
-      />
-    );
-  }
-
-  if (!clubs.length) {
-    return (
       <>
         <Layout
           title='Select Workspace'
           description='Choose a club to manage or create a new one'
           buttonText='Create New Club'
           page='clubs'
+          noItems={true}
           buttonAction={() => {
             setIsCreateModalOpen(true);
           }}
