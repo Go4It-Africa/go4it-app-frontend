@@ -9,6 +9,7 @@
     "lint": "next lint"
   },
   "dependencies": {
+    "@aws-sdk/client-s3": "^3.775.0",
     "@t3-oss/env-core": "^0.12.0",
     "axios": "^1.7.9",
     "formik": "^2.4.6",
@@ -16,7 +17,7 @@
     "iconsax-react": "^0.0.8",
     "lucide-react": "^0.475.0",
     "luxon": "^3.5.0",
-    "next": "15.1.7",
+    "next": "^15.2.4",
     "next-auth": "^4.24.11",
     "react": "^19.0.0",
     "react-dom": "^19.0.0",
