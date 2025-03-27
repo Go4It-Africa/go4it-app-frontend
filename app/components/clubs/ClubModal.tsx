@@ -1,14 +1,15 @@
-import React from 'react';
+import React, { useState } from 'react';
 import { useFormik } from 'formik';
 import * as z from 'zod';
 import { toFormikValidationSchema } from 'zod-formik-adapter';
-import { Upload, Globe, Link } from 'lucide-react';
+import { Globe, Link } from 'lucide-react';
 import { Modal } from '@/app/components/ui/Modal';
 //import { useClub } from '@/app/context/ClubContext';
 import { useClubStore } from '@/app/store/club';
-import Image from 'next/image';
 import countries from '@/app/mock_data/countries';
 import { toast } from 'react-toastify';
+import { uploadToDigitalOcean } from '@/app/utils/uploadToDigitalOcean';
+import { UploadImage } from '../Image';
 
 const createClubSchema = z.object({
   name: z.string().min(1, 'Club name is required'),
@@ -30,6 +31,15 @@ interface CreateClubModalProps {
 
 export const CreateClubModal = ({ isOpen, onClose }: CreateClubModalProps) => {
   const { isLoading, addClub } = useClubStore();
+  const [uploadingLogo, setUploadingLogo] = useState(false);
+  const [clubLogoFile, setClubLogoFile] = useState<File | null>(null);
+  const [previewUrl, setPreviewUrl] = useState<string | null>(null);
+
+  const handleFileSelect = (file: File) => {
+    setClubLogoFile(file);
+    setPreviewUrl(URL.createObjectURL(file));
+  }
+
 
   const formik = useFormik({
     initialValues: {
@@ -37,7 +47,7 @@ export const CreateClubModal = ({ isOpen, onClose }: CreateClubModalProps) => {
       country: '',
       city: '',
       sport: 'football' as const,
-      logo: null,
+      logo: '',
       website_url: '',
       twitter_url: '',
       facebook_url: '',
@@ -48,6 +58,27 @@ export const CreateClubModal = ({ isOpen, onClose }: CreateClubModalProps) => {
     validationSchema: toFormikValidationSchema(createClubSchema),
     onSubmit: async (values) => {
       try {
+
+        try {
+          setUploadingLogo(true);
+          // Upload to DigitalOcean
+          const logoUrl = await uploadToDigitalOcean({
+            file: clubLogoFile,
+            folder: 'club-logos'
+          });
+
+          console.log('the logoUrl', logoUrl);
+          
+          values.logo = logoUrl ?? '';
+        } catch(error) {
+          console.error('Error uploading logo:', error);
+          toast.error('Failed to upload logo');
+          setPreviewUrl(null);
+        } finally {
+          setUploadingLogo(false);
+        }
+
+        //formik.setFieldValue('logo', logoUrl);
         // Handle club creation API call here
         await addClub(values);
         
@@ -55,16 +86,41 @@ export const CreateClubModal = ({ isOpen, onClose }: CreateClubModalProps) => {
           setTimeout(() => {
             onClose();
             formik.resetForm();
+            setPreviewUrl(null);
+            setUploadingLogo(false);
             toast.success('Club created successfully');
           }, 3000);
         }
       } catch (error) {
         console.error('Error creating club:', error);
         //todo: add error message to formik
+        setPreviewUrl(null);
+        setUploadingLogo(false);
         toast.error('Failed to create club');
       }
     },
   });
+
+  // const handleLogoUpload = async (event: React.ChangeEvent<HTMLInputElement>) => {
+  //   const file = event.currentTarget.files?.[0];
+  //   if (!file) return;
+
+  //   // Validate file type
+  //   if (!file.type.startsWith('image/')) {
+  //     toast.error('Please upload an image file');
+  //     return;
+  //   }
+
+  //   // Validate file size (max 5MB)
+  //   if (file.size > 5 * 1024 * 1024) {
+  //     toast.error('File size must be less than 5MB');
+  //     return;
+  //   }
+  //   // Create preview URL
+  //   setPreviewUrl(URL.createObjectURL(file));
+
+  //   setClubLogoFile(file);
+  // };
 
   return (
     <Modal isOpen={isOpen} onClose={onClose} title='Create New Club'>
@@ -77,46 +133,18 @@ export const CreateClubModal = ({ isOpen, onClose }: CreateClubModalProps) => {
 
           {/* Logo Upload */}
           <div className='flex items-center justify-center'>
-            <div className='relative'>
-              <label
-                htmlFor='name'
-                className='block text-sm font-medium text-gray-700 text-center pb-2'
-              >
-                Upload Logo
-              </label>
-              {formik.values.logo ? (
-                <Image
-                  src={formik.values.logo}
-                  alt='Club logo'
-                  width={128}
-                  height={128}
-                  className='w-32 h-32 rounded-full object-cover'
-                  onError={(e) => {
-                    const target = e.target as HTMLImageElement;
-                    target.src = '/logos/logo.png';
-                  }}
-                />
-              ) : (
-                <div className='w-32 h-32 rounded-full border-2 border-dashed border-gray-300 flex items-center justify-center bg-gray-50'>
-                  <Upload className='w-8 h-8 text-gray-400' />
-                </div>
-              )}
-              <input
-                type='file'
-                accept='image/*'
-                className='absolute inset-0 w-full h-full opacity-0 cursor-pointer'
-                onChange={(event) => {
-                  const file = event.currentTarget.files?.[0];
-                  if (file) {
-                    // Handle file upload logic here
-                    // For now, just set a placeholder URL
-                    formik.setFieldValue('logo', URL.createObjectURL(file));
-                  }
-                }}
-              />
-            </div>
+            <UploadImage 
+              src={previewUrl || formik.values.logo}
+              uploadingLogo={uploadingLogo} 
+              onFileSelect={handleFileSelect} 
+              className='w-32 h-32' 
+              width={128} 
+              height={128} 
+              alt='Club logo'
+              label='Upload Logo'
+            />
           </div>
-
+          
           {/* Club Name */}
           <div>
             <label htmlFor='name' className='form-label-base'>

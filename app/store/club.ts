@@ -27,7 +27,10 @@ export const useClubStore = create<ClubState & ClubActions>((set) => ({
     //const currentClub = get().clubs.find((c) => c.id === clubId);
     try {
         const currentClub = await axios.get(`/api/clubs?id=${clubId}`);
-        set({ currentClub: currentClub.data.club[0], isLoading: false })
+
+        const currentClubData = currentClub.data.club[0];
+
+        set({ currentClub: currentClubData, isLoading: false })
     } catch (error) {
         set({ isLoading: false, error: `Failed to fetch club: ${error instanceof Error ? error.message : 'Unknown error'}` });
     }

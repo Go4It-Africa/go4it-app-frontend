@@ -3,13 +3,14 @@
 import { Layout } from '@/app/components/layout/WorkSpaceLayout';
 import Card from '@/app/components/ui/Card';
 import { Users, ArrowRight } from 'lucide-react';
-import Image from 'next/image';
 import Link from 'next/link';
-import { useEffect, useMemo, useState } from 'react';
+import { useEffect, useState } from 'react';
 import Loader from '@/app/components/Loader';
 import { CreateClubModal } from '@/app/components/clubs/ClubModal';
 import { useClubStore } from '@/app/store/club';
 import { signOut } from 'next-auth/react';
+import { CustomImage } from '@/app/components/Image';
+
 export default function ClubsWorkspacePage() {
   const { clubs, isLoading, error, fetchClubs } = useClubStore();
 
@@ -18,16 +19,6 @@ export default function ClubsWorkspacePage() {
   useEffect(() => {
     fetchClubs();
   }, [fetchClubs]);
-
-  const processedClubs = useMemo(() => {
-    if(!isLoading && !error) {
-      return clubs.map((club) => ({
-        ...club,
-        logo:
-          club.logo instanceof Blob ? URL.createObjectURL(club.logo) : club.logo,
-      }));
-    }
-  }, [clubs, isLoading, error]);
 
   if (isLoading) {
     return <Loader />;
@@ -88,9 +79,12 @@ export default function ClubsWorkspacePage() {
       }}
     >
       <div className='grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-4'>
-        {processedClubs?.map((club) => {
+        {clubs?.map((club) => {
           if (!club) return null;
           const { id, name, logo, sport, playerCount, country } = club;
+
+          const logoUrl = logo ? `${process.env.NEXT_PUBLIC_DIGITAL_OCEAN_SPACES_CDN_ENDPOINT}/${logo}` : '/logos/logo.png';
+          
           return (
             <div key={id} className='h-full'>
               <Card
@@ -99,16 +93,12 @@ export default function ClubsWorkspacePage() {
               >
                 <div className='p-6 h-full flex flex-col'>
                   <div className='flex items-center gap-4 mb-4'>
-                    <Image
-                      src={logo || '/logos/logo.png'}
+                    <CustomImage
+                      src={logoUrl}
                       alt={`${name} logo`}
                       width={64}
                       height={64}
                       className='h-16 w-16 rounded-full object-cover'
-                      onError={(e) => {
-                        const target = e.target as HTMLImageElement;
-                        target.src = '/logos/logo.png';
-                      }}
                     />
                     <div>
                       <h3 className='font-bold text-lg'>{name}</h3>
